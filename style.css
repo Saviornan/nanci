@@ -1,19 +1,16 @@
 body{
   margin:0;
-  font-family: "Arial Rounded MT Bold", sans-serif;
+  font-family:"Arial Rounded MT Bold", sans-serif;
   color:white;
   overflow-x:hidden;
 }
 
-/* 头部 */
+/* header */
 header{
   position:fixed;
-  width:100%;
   top:0;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:15px 30px;
+  right:0;
+  padding:20px 40px;
   z-index:100;
 }
 
@@ -23,18 +20,18 @@ header{
 }
 
 .header-buttons button{
-  background:transparent;
-  border:1px solid rgba(255,255,255,0.5);
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.3);
   color:white;
-  padding:6px 14px;
+  padding:6px 16px;
   border-radius:20px;
   cursor:pointer;
-  transition:all 0.3s ease;
+  backdrop-filter:blur(10px);
+  transition:0.3s;
 }
 
 .header-buttons button:hover{
   background:rgba(255,255,255,0.2);
-  border-color:white;
 }
 
 /* 模块 */
@@ -44,14 +41,14 @@ header{
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  padding-top:80px;
   text-align:center;
+  padding-top:80px;
 }
 
-/* 首页 */
+/* 首页标题 */
 h1{
-  font-size:64px;
-  margin-bottom:20px;
+  font-size:72px;
+  margin-bottom:10px;
 }
 
 .subtitle{
@@ -59,16 +56,39 @@ h1{
   margin-bottom:40px;
 }
 
+/* 首页按钮 */
+.home-actions{
+  display:flex;
+  gap:24px;
+}
+
+.home-actions button{
+  font-size:20px;
+  padding:14px 32px;
+  border-radius:30px;
+  border:1px solid rgba(255,255,255,0.3);
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(10px);
+  transition:0.3s;
+}
+
+.home-actions button:hover{
+  background:rgba(255,255,255,0.2);
+}
+
 /* 分类 */
 .tabs{
   display:flex;
-  gap:10px;
-  overflow-x:auto;
-  margin-bottom:20px;
+  gap:16px;
+  margin-bottom:30px;
 }
 
 .tabs button{
-  border-radius:20px;
+  font-size:18px;
+  padding:10px 24px;
+  border-radius:25px;
+  border:1px solid rgba(255,255,255,0.3);
+  background:rgba(255,255,255,0.08);
 }
 
 /* 内容 */
@@ -77,6 +97,6 @@ h1{
 }
 
 .item img,.item video{
-  max-width:400px;
-  border-radius:10px;
+  max-width:420px;
+  border-radius:12px;
 }
