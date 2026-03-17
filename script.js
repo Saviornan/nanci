@@ -4,30 +4,34 @@ let currentPage;
 let currentCategory=null;
 let inDetailView=false;
 let backToListOnce=false;
+let lang="en";
+
+/* 文案 */
+let text={
+  home:{en:"Welcome to my portfolio",cn:"欢迎来到我的作品集"},
+  about:{en:"About me",cn:"关于我"}
+};
 
 /* 背景 */
-let hue=200;
+document.body.style.background=
+"linear-gradient(120deg,#e9edf3,#f4f6fb)";
 
-document.body.style.background =
-`linear-gradient(120deg,hsl(200,25%,88%),hsl(230,25%,92%))`;
+/* header按钮 */
+document.getElementById("btn-about").onclick=()=>{
+  if(currentPage===showAbout){
+    showHome();
+  }else{
+    showAbout();
+  }
+};
 
-document.addEventListener("mousemove",e=>{
-  let x=e.clientX/window.innerWidth;
-  let y=e.clientY/window.innerHeight;
+document.getElementById("btn-lang").onclick=()=>{
+  lang=lang==="en"?"cn":"en";
+  document.getElementById("btn-lang").innerText=lang.toUpperCase();
+  currentPage();
+};
 
-  document.body.style.background=
-  `linear-gradient(${120+x*40}deg,
-  hsl(${hue+y*10},25%,88%),
-  hsl(${hue+30+y*10},25%,92%))`;
-});
-
-function animate(){
-  hue+=0.05;
-  requestAnimationFrame(animate);
-}
-animate();
-
-/* 返回按钮 */
+/* 返回 */
 function createBackButton(){
   let b=document.createElement("button");
   b.className="back-btn";
@@ -48,13 +52,12 @@ function createBackButton(){
   document.body.appendChild(b);
 }
 
-/* 扩散动画 */
+/* 扩散 */
 function expandFromButton(btn,callback){
   let rect=btn.getBoundingClientRect();
 
   let o=document.createElement("div");
   o.className="expand-overlay";
-
   o.style.left=rect.left+"px";
   o.style.top=rect.top+"px";
 
@@ -65,7 +68,7 @@ function expandFromButton(btn,callback){
   setTimeout(()=>{
     o.remove();
     callback();
-  },600);
+  },500);
 }
 
 /* 动画 */
@@ -74,7 +77,6 @@ function animateItems(m){
 
   items.forEach((el,i)=>{
     setTimeout(()=>{
-      el.style.transition="0.5s ease";
       el.style.opacity="1";
       el.style.transform="translateY(0)";
     },i*60);
@@ -89,15 +91,15 @@ function showHome(){
 
   let m=createModule();
 
-  let title=document.createElement("h1");
-  title.innerText="NANCI";
+  let h=document.createElement("h1");
+  h.innerText="NANCI";
 
   let sub=document.createElement("div");
   sub.className="subtitle";
-  sub.innerText="Welcome to my portfolio";
+  sub.innerText=text.home[lang];
 
-  let actions=document.createElement("div");
-  actions.className="home-actions";
+  let box=document.createElement("div");
+  box.className="home-actions";
 
   let b1=document.createElement("button");
   b1.innerText="Creations";
@@ -107,12 +109,12 @@ function showHome(){
   b2.innerText="Projects";
   b2.onclick=(e)=>expandFromButton(e.target,showProjects);
 
-  actions.appendChild(b1);
-  actions.appendChild(b2);
+  box.appendChild(b1);
+  box.appendChild(b2);
 
-  m.appendChild(title);
+  m.appendChild(h);
   m.appendChild(sub);
-  m.appendChild(actions);
+  m.appendChild(box);
 
   app.appendChild(m);
 }
@@ -154,7 +156,22 @@ function showCreations(){
   app.appendChild(m);
 }
 
-/* Projects（结构同样） */
+/* About */
+function showAbout(){
+  currentPage=showAbout;
+  app.innerHTML="";
+  document.querySelectorAll(".back-btn").forEach(e=>e.remove());
+
+  let m=createModule();
+
+  let t=document.createElement("p");
+  t.innerText=text.about[lang];
+
+  m.appendChild(t);
+  app.appendChild(m);
+}
+
+/* Projects */
 function showProjects(){
   currentPage=showProjects;
   app.innerHTML="";
@@ -224,4 +241,5 @@ function renderAssets(path,m){
 }
 
 /* 初始化 */
+document.getElementById("btn-lang").innerText="EN";
 showHome();
