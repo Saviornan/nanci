@@ -1,118 +1,219 @@
-let lang = 'en';
-let content = {};
-let currentModule = null;
-const mainContent = document.getElementById('main-content');
-const btnLang = document.getElementById('btn-lang');
+let lang = "en";
 
- 异步加载 content.json
-fetch('content.json')
-  .then(res = res.json())
-  .then(data = {
-    content = data;
-    initHeader();
-    renderModule('creations');
-  });
+// JSON 数据直接写在 JS 里，避免 fetch / 路径问题
+let data = {
+  creations: ["2d","ai","3d"],
+  projects: ["projectA"],
+  text: {
+    creations: {en:"Creations", cn:"个人创作"},
+    projects: {en:"Projects", cn:"项目"},
+    "2d": {en:"2D", cn:"二维"},
+    ai: {en:"AI", cn:"AI生成"},
+    "3d": {en:"3D", cn:"三维"}
+  }
+};
 
- 初始化头部按钮文字
-function initHeader() {
-  document.getElementById('btn-creations').textContent = content.header.creations[lang];
-  document.getElementById('btn-projects').textContent = content.header.projects[lang];
-  btnLang.textContent = content.header.lang[lang];
+const app = document.getElementById("app");
+
+// 初始化头部
+function initHeader(){
+  document.getElementById("btn-creations").innerText = data.text.creations[lang];
+  document.getElementById("btn-projects").innerText = data.text.projects[lang];
+  document.getElementById("btn-lang").innerText = lang.toUpperCase();
 }
 
- 切换语言
-btnLang.onclick = ()={
-  lang = lang==='en''cn''en';
+// 语言切换
+document.getElementById("btn-lang").onclick = () => {
+  lang = lang==="en"?"cn":"en";
   initHeader();
-  renderModule(currentModule);
-}
+  currentRender();
+};
 
- 背景渐变 + 鼠标微动态
+// 头部按钮
+document.getElementById("btn-creations").onclick = showCreations;
+document.getElementById("btn-projects").onclick = showProjects;
+
+let currentRender = showHome;
+
+// 背景渐变
 let hue = 200;
-document.body.addEventListener('mousemove', e={
-  let offsetX = e.clientX  window.innerWidth;
-  let offsetY = e.clientY  window.innerHeight;
-  document.body.style.background = `linear-gradient(${120 + offsetX30}deg, hsl(${hue + offsetY20},60%,50%), hsl(${hue+60 + offsetY20},60%,50%))`;
+document.addEventListener("mousemove", e => {
+  let x = e.clientX/window.innerWidth;
+  let y = e.clientY/window.innerHeight;
+  document.body.style.background =
+    `linear-gradient(${120 + x*30}deg,
+    hsl(${hue + y*20},50%,60%),
+    hsl(${hue + 50 + y*20},50%,65%))`;
 });
-function animateBackground(){
-  hue = (hue+0.2)%360;
-  requestAnimationFrame(animateBackground);
+function animate(){
+  hue += 0.1;
+  requestAnimationFrame(animate);
 }
-animateBackground();
+animate();
 
- 渲染模块
-function renderModule(type){
-  mainContent.innerHTML='';
-  currentModule = type;
-  const arr = content[type];
-  const moduleDiv = document.createElement('div');
-  moduleDiv.classList.add('module','active');
+/* ================= 首页 ================= */
+function showHome(){
+  currentRender = showHome;
+  app.innerHTML="";
 
-   横向分类按钮
-  const categories = arr.map(a=a.title[lang]);
-  const tabs = document.createElement('div');
-  tabs.classList.add('category-tabs');
-  categories.forEach(c={
-    const btn = document.createElement('button');
-    btn.textContent=c;
-    btn.onclick=()=renderCategory(c);
+  let module = createModule();
+
+  let title = document.createElement("h1");
+  title.innerText = "NANCI";
+  module.appendChild(title);
+
+  let sub = document.createElement("p");
+  sub.innerText = lang==="en" ? "Portfolio / Selected Works" : "作品集 / 精选内容";
+  module.appendChild(sub);
+
+  let btnCreations = document.createElement("button");
+  btnCreations.innerText = data.text.creations[lang];
+  btnCreations.onclick = showCreations;
+
+  let btnProjects = document.createElement("button");
+  btnProjects.innerText = data.text.projects[lang];
+  btnProjects.onclick = showProjects;
+
+  let btnAbout = document.createElement("button");
+  btnAbout.innerText = "About";
+  btnAbout.onclick = showAbout;
+
+  module.appendChild(btnCreations);
+  module.appendChild(btnProjects);
+  module.appendChild(btnAbout);
+
+  app.appendChild(module);
+}
+
+/* ================= Creations ================= */
+function showCreations(){
+  currentRender = showCreations;
+  app.innerHTML="";
+  let module = createModule();
+
+  let tabs = document.createElement("div");
+  tabs.className="tabs";
+
+  data.creations.forEach(cat => {
+    let btn = document.createElement("button");
+    btn.innerText = data.text[cat][lang];
+    btn.onclick = () => renderCategory(cat,module);
     tabs.appendChild(btn);
   });
-  moduleDiv.appendChild(tabs);
-  mainContent.appendChild(moduleDiv);
 
-  renderCategory(categories[0]);
+  module.appendChild(tabs);
+  app.appendChild(module);
+
+  renderCategory(data.creations[0],module);
 }
 
- 渲染分类内容
-function renderCategory(cat){
-  const moduleDiv = document.querySelector('.module.active');
-  moduleDiv.querySelectorAll('.item').forEach(i=i.remove());
-  const items = content[currentModule].filter(a=a.title[lang]===cat);
+function renderCategory(cat,module){
+  module.querySelectorAll(".item").forEach(i=>i.remove());
 
-  items.forEach(item={
-    const div = document.createElement('div');
-    div.classList.add('item');
+  for(let i=1;i<=20;i++){
+    let names = [`${i}.jpg`,`${i}.png`,`${i}.gif`,`${i}.mp4`];
+    names.forEach(name=>{
+      let path = `assets/creations/${cat}/${name}`;
+      let el;
+      if(name.includes(".mp4")){
+        el=document.createElement("video");
+        el.src=path;
+        el.controls=true;
+      }else{
+        el=document.createElement("img");
+        el.src=path;
+      }
 
-    const h3 = document.createElement('h3');
-    h3.textContent=item.title[lang];
-    div.appendChild(h3);
+      el.onerror=()=>el.remove();
+      el.onload=()=>{
+        let div=document.createElement("div");
+        div.className="item";
+        div.appendChild(el);
+        module.appendChild(div);
+      };
+    });
+  }
+}
 
-     每个项目子文件夹下的 files.json
-    fetch(item.folder+'files.json')
-      .then(res=res.json())
-      .then(files={
-        files.forEach(f={
-          const ext = f.split('.').pop().toLowerCase();
-          if(['jpg','png','gif'].includes(ext)){
-            const img = document.createElement('img');
-            img.src = item.folder + '' + f;
-            div.appendChild(img);
-          } else if(['mp4','webm'].includes(ext)){
-            const vid = document.createElement('video');
-            vid.src = item.folder + '' + f;
-            vid.controls=true;
-            div.appendChild(vid);
-          }
-        });
-      });
+/* ================= Projects ================= */
+function showProjects(){
+  currentRender = showProjects;
+  app.innerHTML="";
+  let module = createModule();
 
-    const p = document.createElement('p');
-    p.textContent=item.description[lang];
-    div.appendChild(p);
+  data.projects.forEach(p => {
+    // 横向分类按钮
+    let tabs = document.createElement("div");
+    tabs.className="tabs";
 
-    if(item.link){
-      const a = document.createElement('a');
-      a.href=item.link;
-      a.target=_blank;
-      a.textContent=item.link_text[lang]View;
-      div.appendChild(a);
-    }
+    let btn = document.createElement("button");
+    btn.innerText = p;
+    btn.onclick = ()=>renderProject(p,module);
+    tabs.appendChild(btn);
 
-    moduleDiv.appendChild(div);
+    module.appendChild(tabs);
+    app.appendChild(module);
+
+    // 默认显示第一个项目
+    renderProject(p,module);
   });
 }
 
- 头部按钮事件
-document.getElementById('btn-creations').onclick = ()=renderModule('creations');
-document.getElementById('btn-projects').onclick = ()=renderModule('projects');
+function renderProject(p,module){
+  module.querySelectorAll(".item").forEach(i=>i.remove());
+
+  for(let i=1;i<=20;i++){
+    let names = [`${i}.jpg`,` ${i}.png`,`${i}.mp4`];
+    names.forEach(name=>{
+      let path = `assets/projects/${p}/${name}`;
+      let el;
+      if(name.includes(".mp4")){
+        el=document.createElement("video");
+        el.src=path;
+        el.controls=true;
+      }else{
+        el=document.createElement("img");
+        el.src=path;
+      }
+
+      el.onerror=()=>el.remove();
+      el.onload=()=>{
+        let div=document.createElement("div");
+        div.className="item";
+        div.appendChild(el);
+        module.appendChild(div);
+      };
+    });
+  }
+}
+
+/* ================= About ================= */
+function showAbout(){
+  currentRender = showAbout;
+  app.innerHTML="";
+  let module = createModule();
+
+  let img = document.createElement("img");
+  img.src = "assets/about/profile.jpg";
+  img.style.maxWidth="300px";
+
+  let text = document.createElement("p");
+  text.innerText = lang==="en" ? "About me" : "关于我";
+
+  module.appendChild(img);
+  module.appendChild(text);
+
+  app.appendChild(module);
+}
+
+/* ================= 通用模块 ================= */
+function createModule(){
+  let m=document.createElement("div");
+  m.className="module active";
+  return m;
+}
+
+// 初始化头部和首页
+initHeader();
+showHome();
+
