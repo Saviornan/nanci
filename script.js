@@ -13,7 +13,20 @@ let text={
   },
   about:{
     cn:"关于我",
-    en:"About Me"
+    en:"About"
+  },
+  creations:{
+    cn:"个人创作",
+    en:"Creations"
+  },
+  projects:{
+    cn:"项目",
+    en:"Projects"
+  },
+  category:{
+    "2d":{cn:"二维",en:"2D"},
+    "3d":{cn:"三维",en:"3D"},
+    "ai":{cn:"AI生成",en:"AI"}
   }
 };
 
@@ -29,6 +42,9 @@ document.getElementById("btn-about").onclick=()=>{
 document.getElementById("btn-lang").onclick=()=>{
   lang=lang==="en"?"cn":"en";
   document.getElementById("btn-lang").innerText=lang.toUpperCase();
+
+  document.getElementById("btn-about").innerText=text.about[lang];
+
   currentPage();
 };
 
@@ -114,11 +130,11 @@ function showHome(){
   box.className="home-actions";
 
   let b1=document.createElement("button");
-  b1.innerText="Creations";
+  b1.innerText=text.creations[lang];
   b1.onclick=(e)=>expandFromButton(e.currentTarget,showCreations);
 
   let b2=document.createElement("button");
-  b2.innerText="Projects";
+  b2.innerText=text.projects[lang];
   b2.onclick=(e)=>expandFromButton(e.currentTarget,showProjects);
 
   box.appendChild(b1);
@@ -149,7 +165,7 @@ function showCreations(){
 
   ["2d","3d","ai"].forEach(cat=>{
     let b=document.createElement("button");
-    b.innerText=cat.toUpperCase();
+    b.innerText=text.category[cat][lang];
 
     b.onclick=()=>{
       openCategoryPage(cat);
@@ -175,7 +191,7 @@ function openCategoryPage(cat){
   let m=createModule();
 
   let title=document.createElement("h1");
-  title.innerText=cat.toUpperCase();
+  title.innerText=text.category[cat][lang];
 
   m.appendChild(title);
   app.appendChild(m);
@@ -217,10 +233,9 @@ function showProjects(){
     b.innerText=p;
 
     b.onclick=()=>{
-      renderAssets(`assets/projects/${p}`,m);
-      animateItems(m);
-    };
-
+  openProjectPage(p);
+};
+    
     tabs.appendChild(b);
   });
 
@@ -267,3 +282,23 @@ function renderAssets(path,m){
 
 document.getElementById("btn-lang").innerText="EN";
 showHome();
+
+function openProjectPage(p){
+  inDetailView=true;
+  backToListOnce=false;
+
+  app.innerHTML="";
+  document.querySelectorAll(".back-btn").forEach(e=>e.remove());
+  createBackButton();
+
+  let m=createModule();
+
+  let title=document.createElement("h1");
+  title.innerText=p;
+
+  m.appendChild(title);
+  app.appendChild(m);
+
+  renderAssets(`assets/projects/${p}`,m);
+  animateItems(m);
+}
