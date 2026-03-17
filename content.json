@@ -1,0 +1,12 @@
+{
+  "works":[
+    {"title":"Sample 1","text_cn":"这是我第一次尝试水彩风格","text_en":"My first watercolor attempt","media":"works-assets/sample1.jpg","type":"image","link":"#"},
+    {"title":"Sample 2","text_cn":"短动画展示","text_en":"Short animation display","media":"works-assets/sample-video.mp4","type":"video","link":"#"},
+    {"title":"Sample GIF","text_cn":"动态练习","text_en":"Animated practice","media":"works-assets/sample-gif.gif","type":"gif","link":"#"}
+  ],
+  "projects":[
+    {"title":"Project 1","text_cn":"完成品牌海报设计","text_en":"Completed brand poster design","media":"projects-assets/project1.jpg","type":"image","link":"#"},
+    {"title":"Project 2","text_cn":"网页 UI 设计","text_en":"Web UI design","media":"projects-assets/project2.jpg","type":"image","link":"#"}
+  ],
+  "about":{"text_cn":"你好，我是Nancy，喜欢创作和设计，这里是我的个人作品集。","text_en":"Hello, I'm Nancy. I love creating and designing. This is my personal portfolio.","media":"about-assets/avatar.jpg"}
+}

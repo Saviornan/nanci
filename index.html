@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nanci Portfolio</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="home">
+    <div id="about-button">
+        <button id="btn-about">About</button>
+    </div>
+
+    <h1 id="typed-text" data-en="Welcome to Nanci's Portfolio" data-cn="欢迎来到Nanci的作品集"></h1>
+    
+    <div id="lang-switch">
+        <button id="btn-en" class="lang-btn active">EN</button>
+        <button id="btn-cn" class="lang-btn">CN</button>
+    </div>
+    
+    <div id="buttons" class="hidden">
+        <button class="entry-btn" data-target="works">Works</button>
+        <button class="entry-btn" data-target="projects">Projects</button>
+    </div>
+</div>
+
+<div id="content" class="hidden">
+    <section id="works">
+        <h2>Works</h2>
+        <div class="grid"></div>
+    </section>
+
+    <section id="projects">
+        <h2>Projects</h2>
+        <div class="grid"></div>
+    </section>
+</div>
+
+<div id="about-panel" class="hidden">
+    <div class="about-content">
+        <span id="close-about">&times;</span>
+        < img id="about-img" src="about-assets/avatar.jpg" alt="Nancy">
+        <p id="about-text"></p >
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
