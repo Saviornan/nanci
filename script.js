@@ -1,50 +1,15 @@
 let app=document.getElementById("app");
-let lang="en";
+
 let currentPage;
+let currentCategory=null;
+let inDetailView=false;
+let backToListOnce=false;
 
-/* 初始背景（防止空白） */
-document.body.style.background =
-`linear-gradient(120deg,
-hsl(200,25%,88%),
-hsl(230,25%,92%))`;
-
-let text={
-  home:{en:"Welcome to my portfolio",cn:"欢迎来到我的作品集"},
-  creations:{en:"Creations",cn:"个人创作"},
-  projects:{en:"Projects",cn:"项目"},
-  about:{en:"About me",cn:"关于我"}
-};
-
-/* header */
-document.getElementById("btn-about").onclick=()=>{
-  if(currentPage===showAbout){
-    showHome();
-  }else{
-    showAbout();
-  }
-};
-
-document.getElementById("btn-lang").onclick=()=>{
-  lang=lang==="en"?"cn":"en";
-  document.getElementById("btn-lang").innerText=lang.toUpperCase();
-  currentPage();
-};
-
-/* 打字机 */
-let timer;
-function typeText(el,str){
-  clearInterval(timer);
-  el.innerText="";
-  let i=0;
-  timer=setInterval(()=>{
-    if(i<str.length){
-      el.innerText+=str[i++];
-    }else clearInterval(timer);
-  },50);
-}
-
-/* 背景互动 */
+/* 背景 */
 let hue=200;
+
+document.body.style.background =
+`linear-gradient(120deg,hsl(200,25%,88%),hsl(230,25%,92%))`;
 
 document.addEventListener("mousemove",e=>{
   let x=e.clientX/window.innerWidth;
@@ -62,20 +27,65 @@ function animate(){
 }
 animate();
 
-/* 创建模块（带展开感） */
-function createModule(){
-  let d=document.createElement("div");
-  d.className="module";
+/* 返回按钮 */
+function createBackButton(){
+  let b=document.createElement("button");
+  b.className="back-btn";
+  b.innerText="←";
 
-  setTimeout(()=>d.classList.add("show"),10);
+  b.onclick=()=>{
+    if(inDetailView){
+      showCreations();
+      backToListOnce=true;
+    }else{
+      if(backToListOnce){
+        showHome();
+        backToListOnce=false;
+      }
+    }
+  };
 
-  return d;
+  document.body.appendChild(b);
+}
+
+/* 扩散动画 */
+function expandFromButton(btn,callback){
+  let rect=btn.getBoundingClientRect();
+
+  let o=document.createElement("div");
+  o.className="expand-overlay";
+
+  o.style.left=rect.left+"px";
+  o.style.top=rect.top+"px";
+
+  document.body.appendChild(o);
+
+  setTimeout(()=>o.classList.add("active"),10);
+
+  setTimeout(()=>{
+    o.remove();
+    callback();
+  },600);
+}
+
+/* 动画 */
+function animateItems(m){
+  let items=m.querySelectorAll(".item");
+
+  items.forEach((el,i)=>{
+    setTimeout(()=>{
+      el.style.transition="0.5s ease";
+      el.style.opacity="1";
+      el.style.transform="translateY(0)";
+    },i*60);
+  });
 }
 
 /* 首页 */
 function showHome(){
   currentPage=showHome;
   app.innerHTML="";
+  document.querySelectorAll(".back-btn").forEach(e=>e.remove());
 
   let m=createModule();
 
@@ -84,18 +94,18 @@ function showHome(){
 
   let sub=document.createElement("div");
   sub.className="subtitle";
-  typeText(sub,text.home[lang]);
+  sub.innerText="Welcome to my portfolio";
 
   let actions=document.createElement("div");
   actions.className="home-actions";
 
   let b1=document.createElement("button");
-  b1.innerText=text.creations[lang];
-  b1.onclick=showCreations;
+  b1.innerText="Creations";
+  b1.onclick=(e)=>expandFromButton(e.target,showCreations);
 
   let b2=document.createElement("button");
-  b2.innerText=text.projects[lang];
-  b2.onclick=showProjects;
+  b2.innerText="Projects";
+  b2.onclick=(e)=>expandFromButton(e.target,showProjects);
 
   actions.appendChild(b1);
   actions.appendChild(b2);
@@ -111,13 +121,17 @@ function showHome(){
 function showCreations(){
   currentPage=showCreations;
   app.innerHTML="";
+  inDetailView=false;
+
+  document.querySelectorAll(".back-btn").forEach(e=>e.remove());
+  createBackButton();
 
   let m=createModule();
 
   let tabs=document.createElement("div");
   tabs.className="tabs";
 
-  ["2d","3d","ai"].forEach((cat,i)=>{
+  ["2d","3d","ai"].forEach(cat=>{
     let b=document.createElement("button");
     b.innerText=cat.toUpperCase();
 
@@ -125,34 +139,35 @@ function showCreations(){
       tabs.querySelectorAll("button").forEach(btn=>btn.classList.remove("active"));
       b.classList.add("active");
 
-      b.classList.add("flash");
-      setTimeout(()=>b.classList.remove("flash"),120);
+      currentCategory=cat;
+      inDetailView=true;
+      backToListOnce=false;
 
       renderAssets(`assets/creations/${cat}`,m);
+      animateItems(m);
     };
-
-    if(i===0) b.classList.add("active");
 
     tabs.appendChild(b);
   });
 
   m.appendChild(tabs);
   app.appendChild(m);
-
-  renderAssets("assets/creations/2d",m);
 }
 
-/* Projects */
+/* Projects（结构同样） */
 function showProjects(){
   currentPage=showProjects;
   app.innerHTML="";
+
+  document.querySelectorAll(".back-btn").forEach(e=>e.remove());
+  createBackButton();
 
   let m=createModule();
 
   let tabs=document.createElement("div");
   tabs.className="tabs";
 
-  ["projectA"].forEach((p,i)=>{
+  ["projectA"].forEach(p=>{
     let b=document.createElement("button");
     b.innerText=p;
 
@@ -160,40 +175,23 @@ function showProjects(){
       tabs.querySelectorAll("button").forEach(btn=>btn.classList.remove("active"));
       b.classList.add("active");
 
-      b.classList.add("flash");
-      setTimeout(()=>b.classList.remove("flash"),120);
-
       renderAssets(`assets/projects/${p}`,m);
+      animateItems(m);
     };
-
-    if(i===0) b.classList.add("active");
 
     tabs.appendChild(b);
   });
 
   m.appendChild(tabs);
   app.appendChild(m);
-
-  renderAssets("assets/projects/projectA",m);
 }
 
-/* About */
-function showAbout(){
-  currentPage=showAbout;
-  app.innerHTML="";
-
-  let m=createModule();
-
-  let img=document.createElement("img");
-  img.src="assets/about/profile.jpg";
-
-  let t=document.createElement("p");
-  t.innerText=text.about[lang];
-
-  m.appendChild(img);
-  m.appendChild(t);
-
-  app.appendChild(m);
+/* 模块 */
+function createModule(){
+  let d=document.createElement("div");
+  d.className="module";
+  setTimeout(()=>d.classList.add("show"),10);
+  return d;
 }
 
 /* 资源加载 */
@@ -226,6 +224,4 @@ function renderAssets(path,m){
 }
 
 /* 初始化 */
-document.getElementById("btn-lang").innerText="EN";
-currentPage=showHome;
 showHome();
