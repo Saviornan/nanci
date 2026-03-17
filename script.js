@@ -286,19 +286,22 @@ function renderAssets(path,m){
 
   for(let i=1;i<=20;i++){
 
-    let loaded=false;
+    let hasLoaded=false;
 
     ["jpg","png","gif","mp4"].forEach(ext=>{
       let file=`${path}/${i}.${ext}`;
 
+      // 视频
       if(ext==="mp4"){
         let video=document.createElement("video");
         video.src=file;
         video.controls=true;
+        video.muted=true;
+        video.playsInline=true;
 
         video.onloadeddata=()=>{
-          if(loaded) return;
-          loaded=true;
+          if(hasLoaded) return;
+          hasLoaded=true;
 
           let d=document.createElement("div");
           d.className="item";
@@ -306,13 +309,16 @@ function renderAssets(path,m){
           m.appendChild(d);
         };
 
-      }else{
+      }
+
+      // 图片
+      else{
         let img=new Image();
         img.src=file;
 
         img.onload=()=>{
-          if(loaded) return;
-          loaded=true;
+          if(hasLoaded) return;
+          hasLoaded=true;
 
           let d=document.createElement("div");
           d.className="item";
