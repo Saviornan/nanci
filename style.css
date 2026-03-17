@@ -147,3 +147,11 @@ header{
 .expand-overlay.active{
   transform:translate(-50%,-50%) scale(120);
 }
+
+
+.tabs button,
+.tabs button.active,
+.home-actions button,
+button{
+  color:white !important;
+}
