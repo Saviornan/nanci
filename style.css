@@ -117,6 +117,7 @@ header{
 .tabs button.active{
   background:rgba(255,255,255,0.25);
   color:white;
+  transform:scale(1.05);
 }
 
 /* 内容 */
