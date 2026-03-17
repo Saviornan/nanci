@@ -264,49 +264,42 @@ function renderAssets(path,m){
   m.querySelectorAll(".item").forEach(i=>i.remove());
 
   for(let i=1;i<=20;i++){
+
+    let loaded=false;
+
     ["jpg","png","gif","mp4"].forEach(ext=>{
       let file=`${path}/${i}.${ext}`;
-      let el;
 
       if(ext==="mp4"){
-        el=document.createElement("video");
-        el.src=file;
-        el.controls=true;
+        let video=document.createElement("video");
+        video.src=file;
+        video.controls=true;
+
+        video.onloadeddata=()=>{
+          if(loaded) return;
+          loaded=true;
+
+          let d=document.createElement("div");
+          d.className="item";
+          d.appendChild(video);
+          m.appendChild(d);
+        };
+
       }else{
-        el=document.createElement("img");
-        el.src=file;
+        let img=new Image();
+        img.src=file;
+
+        img.onload=()=>{
+          if(loaded) return;
+          loaded=true;
+
+          let d=document.createElement("div");
+          d.className="item";
+          d.appendChild(img);
+          m.appendChild(d);
+        };
       }
 
-      el.onerror=()=>el.remove();
-      el.onload=()=>{
-        let d=document.createElement("div");
-        d.className="item";
-        d.appendChild(el);
-        m.appendChild(d);
-      };
     });
   }
-}
-
-document.getElementById("btn-lang").innerText="EN";
-showHome();
-
-function openProjectPage(p){
-  inDetailView=true;
-  backToListOnce=false;
-
-  app.innerHTML="";
-  document.querySelectorAll(".back-btn").forEach(e=>e.remove());
-  createBackButton();
-
-  let m=createModule();
-
-  let title=document.createElement("h1");
-  title.innerText=p;
-
-  m.appendChild(title);
-  app.appendChild(m);
-
-  renderAssets(`assets/projects/${p}`,m);
-  animateItems(m);
 }
