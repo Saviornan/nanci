@@ -1,18 +1,29 @@
 body{
   margin:0;
-  font-family:"Arial Rounded MT Bold","PingFang SC","Microsoft YaHei",sans-serif;
-  color:white;
+  font-family:sans-serif;
   overflow-x:hidden;
 
-  background:linear-gradient(-45deg,#eef2f7,#f8fafc,#e9edf3,#f4f6fb);
-  background-size:400% 400%;
+  background:linear-gradient(120deg,#f3f4ff,#e8f0ff,#f9f6ff);
+  background-size:200% 200%;
   animation:bgMove 12s ease infinite;
 }
 
+/* 渐变流动 */
 @keyframes bgMove{
   0%{background-position:0% 50%;}
   50%{background-position:100% 50%;}
   100%{background-position:0% 50%;}
+}
+
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+
+  background:radial-gradient(circle at var(--x,50%) var(--y,50%),
+    rgba(255,255,255,0.15),
+    transparent 40%);
 }
 
 /* 文字 */
