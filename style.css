@@ -1,62 +1,60 @@
-body {
+body{
   margin:0;
-  font-family: sans-serif;
-  overflow-x: hidden;
-  height: 100vh;
-  background: linear-gradient(120deg, #8e44ad, #3498db);
-  transition: background 0.5s linear;
+  font-family:sans-serif;
+  overflow:hidden;
+  height:100vh;
+  color:#fff;
 }
 
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
+header{
+  display:flex;
+  justify-content:space-between;
+  padding:20px;
+  position:fixed;
+  width:100%;
+  z-index:10;
 }
 
-nav button {
-  margin-left: 10px;
-  padding: 6px 12px;
-  border: 1px solid #fff;
-  background: transparent;
-  color: #fff;
-  cursor: pointer;
-  font-size: 14px;
+button{
+  margin-left:10px;
+  background:transparent;
+  border:1px solid #fff;
+  color:#fff;
+  padding:6px 12px;
+  cursor:pointer;
 }
 
-.module {
-  position: absolute;
+.module{
+  position:absolute;
   top:0;
   left:0;
-  width: 100%;
-  min-height: 100vh;
-  background: rgba(255,255,255,0.05);
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  width:100%;
+  min-height:100vh;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
 }
 
-.module.active {
-  display: flex;
+.module.active{
+  display:flex;
 }
 
-.category-tabs {
-  display: flex;
-  margin-top: 20px;
+.tabs{
+  display:flex;
+  margin-top:80px;
 }
 
-.category-tabs button {
-  margin: 0 5px;
+.tabs button{
+  margin:0 5px;
 }
 
-.item {
-  margin-top: 20px;
-  text-align: center;
+.item{
+  margin-top:20px;
+  text-align:center;
 }
 
-.item img, .item video {
-  max-width: 400px;
-  margin: 5px 0;
+.item img,.item video{
+  max-width:400px;
+  margin:5px;
 }
-
