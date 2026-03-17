@@ -1,12 +1,46 @@
+
 {
-  "works":[
-    {"title":"Sample 1","text_cn":"这是我第一次尝试水彩风格","text_en":"My first watercolor attempt","media":"works-assets/sample1.jpg","type":"image","link":"#"},
-    {"title":"Sample 2","text_cn":"短动画展示","text_en":"Short animation display","media":"works-assets/sample-video.mp4","type":"video","link":"#"},
-    {"title":"Sample GIF","text_cn":"动态练习","text_en":"Animated practice","media":"works-assets/sample-gif.gif","type":"gif","link":"#"}
+  "header": {
+    "creations": {"en":"Creations","cn":"个人创作"},
+    "projects": {"en":"Projects","cn":"项目"},
+    "lang": {"en":"EN","cn":"中文"}
+  },
+  "creations": [
+    {
+      "title":{"en":"2D Project 1","cn":"2D作品1"},
+      "folder":"assets/creations/2d_project1",
+      "type":"mixed",
+      "description":{"en":"Sample 2D project","cn":"2D项目示例"},
+      "link":"#",
+      "link_text":{"en":"View","cn":"查看"}
+    },
+    {
+      "title":{"en":"AI Project 1","cn":"AI生成1"},
+      "folder":"assets/creations/ai_project1",
+      "type":"mixed",
+      "description":{"en":"AI generated project","cn":"AI生成示例"},
+      "link":"#",
+      "link_text":{"en":"View","cn":"查看"}
+    }
   ],
-  "projects":[
-    {"title":"Project 1","text_cn":"完成品牌海报设计","text_en":"Completed brand poster design","media":"projects-assets/project1.jpg","type":"image","link":"#"},
-    {"title":"Project 2","text_cn":"网页 UI 设计","text_en":"Web UI design","media":"projects-assets/project2.jpg","type":"image","link":"#"}
+  "projects": [
+    {
+      "title":{"en":"Project A","cn":"项目A"},
+      "folder":"assets/projects/projectA",
+      "type":"mixed",
+      "description":{"en":"Demo project","cn":"演示项目"},
+      "link":"#",
+      "link_text":{"en":"View","cn":"查看"}
+    }
   ],
-  "about":{"text_cn":"你好，我是Nancy，喜欢创作和设计，这里是我的个人作品集。","text_en":"Hello, I'm Nancy. I love creating and designing. This is my personal portfolio.","media":"about-assets/avatar.jpg"}
+  "about": [
+    {
+      "title":{"en":"Profile","cn":"关于我"},
+      "type":"image",
+      "media":"assets/about/profile.jpg",
+      "description":{"en":"My profile","cn":"我的简介"},
+      "link":"#",
+      "link_text":{"en":"View","cn":"查看"}
+    }
+  ]
 }
