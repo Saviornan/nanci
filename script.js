@@ -2,7 +2,12 @@ let app=document.getElementById("app");
 let lang="en";
 let currentPage;
 
-/* 文本 */
+/* 初始背景（防止空白） */
+document.body.style.background =
+`linear-gradient(120deg,
+hsl(200,25%,88%),
+hsl(230,25%,92%))`;
+
 let text={
   home:{en:"Welcome to my portfolio",cn:"欢迎来到我的作品集"},
   creations:{en:"Creations",cn:"个人创作"},
@@ -11,7 +16,14 @@ let text={
 };
 
 /* header */
-document.getElementById("btn-about").onclick=showAbout;
+document.getElementById("btn-about").onclick=()=>{
+  if(currentPage===showAbout){
+    showHome();
+  }else{
+    showAbout();
+  }
+};
+
 document.getElementById("btn-lang").onclick=()=>{
   lang=lang==="en"?"cn":"en";
   document.getElementById("btn-lang").innerText=lang.toUpperCase();
@@ -31,7 +43,7 @@ function typeText(el,str){
   },50);
 }
 
-/* 背景（浅+有互动） */
+/* 背景互动 */
 let hue=200;
 
 document.addEventListener("mousemove",e=>{
@@ -40,8 +52,8 @@ document.addEventListener("mousemove",e=>{
 
   document.body.style.background=
   `linear-gradient(${120+x*40}deg,
-  hsl(${hue+y*10},30%,85%),
-  hsl(${hue+30+y*10},30%,90%))`;
+  hsl(${hue+y*10},25%,88%),
+  hsl(${hue+30+y*10},25%,92%))`;
 });
 
 function animate(){
@@ -49,6 +61,16 @@ function animate(){
   requestAnimationFrame(animate);
 }
 animate();
+
+/* 创建模块（带展开感） */
+function createModule(){
+  let d=document.createElement("div");
+  d.className="module";
+
+  setTimeout(()=>d.classList.add("show"),10);
+
+  return d;
+}
 
 /* 首页 */
 function showHome(){
@@ -95,10 +117,22 @@ function showCreations(){
   let tabs=document.createElement("div");
   tabs.className="tabs";
 
-  ["2d","3d","ai"].forEach(cat=>{
+  ["2d","3d","ai"].forEach((cat,i)=>{
     let b=document.createElement("button");
     b.innerText=cat.toUpperCase();
-    b.onclick=()=>renderAssets(`assets/creations/${cat}`,m);
+
+    b.onclick=()=>{
+      tabs.querySelectorAll("button").forEach(btn=>btn.classList.remove("active"));
+      b.classList.add("active");
+
+      b.classList.add("flash");
+      setTimeout(()=>b.classList.remove("flash"),120);
+
+      renderAssets(`assets/creations/${cat}`,m);
+    };
+
+    if(i===0) b.classList.add("active");
+
     tabs.appendChild(b);
   });
 
@@ -118,10 +152,22 @@ function showProjects(){
   let tabs=document.createElement("div");
   tabs.className="tabs";
 
-  ["projectA"].forEach(p=>{
+  ["projectA"].forEach((p,i)=>{
     let b=document.createElement("button");
     b.innerText=p;
-    b.onclick=()=>renderAssets(`assets/projects/${p}`,m);
+
+    b.onclick=()=>{
+      tabs.querySelectorAll("button").forEach(btn=>btn.classList.remove("active"));
+      b.classList.add("active");
+
+      b.classList.add("flash");
+      setTimeout(()=>b.classList.remove("flash"),120);
+
+      renderAssets(`assets/projects/${p}`,m);
+    };
+
+    if(i===0) b.classList.add("active");
+
     tabs.appendChild(b);
   });
 
@@ -179,12 +225,7 @@ function renderAssets(path,m){
   }
 }
 
-function createModule(){
-  let d=document.createElement("div");
-  d.className="module";
-  return d;
-}
-
 /* 初始化 */
 document.getElementById("btn-lang").innerText="EN";
+currentPage=showHome;
 showHome();
