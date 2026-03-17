@@ -1,57 +1,47 @@
-let lang = "en";
-let app = document.getElementById("app");
+let app=document.getElementById("app");
+let lang="en";
+let currentPage;
 
-/* ===== 数据 ===== */
-let text = {
-  home: {en:"Welcome to my portfolio", cn:"欢迎来到我的作品集"},
-  creations: {en:"Creations", cn:"个人创作"},
-  projects: {en:"Projects", cn:"项目"}
+/* 文本 */
+let text={
+  home:{en:"Welcome to my portfolio",cn:"欢迎来到我的作品集"},
+  creations:{en:"Creations",cn:"个人创作"},
+  projects:{en:"Projects",cn:"项目"},
+  about:{en:"About me",cn:"关于我"}
 };
 
-/* ===== 头部按钮 ===== */
-document.getElementById("btn-home").onclick = showHome;
-document.getElementById("btn-creations").onclick = showCreations;
-document.getElementById("btn-projects").onclick = showProjects;
-document.getElementById("btn-about").onclick = showAbout;
-
-document.getElementById("btn-lang").onclick = () => {
-  lang = lang==="en"?"cn":"en";
-  initHeader();
-  showHome();
+/* header */
+document.getElementById("btn-about").onclick=showAbout;
+document.getElementById("btn-lang").onclick=()=>{
+  lang=lang==="en"?"cn":"en";
+  document.getElementById("btn-lang").innerText=lang.toUpperCase();
+  currentPage();
 };
 
-function initHeader(){
-  document.getElementById("btn-creations").innerText = text.creations[lang];
-  document.getElementById("btn-projects").innerText = text.projects[lang];
-  document.getElementById("btn-lang").innerText = lang.toUpperCase();
-}
-
-/* ===== 打字机效果 ===== */
-let typingTimer;
-function typeText(el, str){
-  clearInterval(typingTimer);
+/* 打字机 */
+let timer;
+function typeText(el,str){
+  clearInterval(timer);
   el.innerText="";
   let i=0;
-  typingTimer = setInterval(()=>{
+  timer=setInterval(()=>{
     if(i<str.length){
-      el.innerText += str[i];
-      i++;
-    }else{
-      clearInterval(typingTimer);
-    }
+      el.innerText+=str[i++];
+    }else clearInterval(timer);
   },50);
 }
 
-/* ===== 背景 ===== */
+/* 背景（浅+有互动） */
 let hue=200;
+
 document.addEventListener("mousemove",e=>{
   let x=e.clientX/window.innerWidth;
   let y=e.clientY/window.innerHeight;
 
   document.body.style.background=
-  `linear-gradient(${120+x*30}deg,
-  hsl(${hue+y*20},60%,70%),
-  hsl(${hue+40+y*20},60%,75%))`;
+  `linear-gradient(${120+x*40}deg,
+  hsl(${hue+y*10},30%,85%),
+  hsl(${hue+30+y*10},30%,90%))`;
 });
 
 function animate(){
@@ -60,9 +50,11 @@ function animate(){
 }
 animate();
 
-/* ===== 页面切换 ===== */
+/* 首页 */
 function showHome(){
+  currentPage=showHome;
   app.innerHTML="";
+
   let m=createModule();
 
   let title=document.createElement("h1");
@@ -70,22 +62,40 @@ function showHome(){
 
   let sub=document.createElement("div");
   sub.className="subtitle";
-  typeText(sub, text.home[lang]);
+  typeText(sub,text.home[lang]);
+
+  let actions=document.createElement("div");
+  actions.className="home-actions";
+
+  let b1=document.createElement("button");
+  b1.innerText=text.creations[lang];
+  b1.onclick=showCreations;
+
+  let b2=document.createElement("button");
+  b2.innerText=text.projects[lang];
+  b2.onclick=showProjects;
+
+  actions.appendChild(b1);
+  actions.appendChild(b2);
 
   m.appendChild(title);
   m.appendChild(sub);
+  m.appendChild(actions);
+
   app.appendChild(m);
 }
 
-/* ===== Creations ===== */
+/* Creations */
 function showCreations(){
+  currentPage=showCreations;
   app.innerHTML="";
+
   let m=createModule();
 
   let tabs=document.createElement("div");
   tabs.className="tabs";
 
-  ["2d","ai","3d"].forEach(cat=>{
+  ["2d","3d","ai"].forEach(cat=>{
     let b=document.createElement("button");
     b.innerText=cat.toUpperCase();
     b.onclick=()=>renderAssets(`assets/creations/${cat}`,m);
@@ -98,9 +108,11 @@ function showCreations(){
   renderAssets("assets/creations/2d",m);
 }
 
-/* ===== Projects ===== */
+/* Projects */
 function showProjects(){
+  currentPage=showProjects;
   app.innerHTML="";
+
   let m=createModule();
 
   let tabs=document.createElement("div");
@@ -119,25 +131,28 @@ function showProjects(){
   renderAssets("assets/projects/projectA",m);
 }
 
-/* ===== About ===== */
+/* About */
 function showAbout(){
+  currentPage=showAbout;
   app.innerHTML="";
+
   let m=createModule();
 
   let img=document.createElement("img");
   img.src="assets/about/profile.jpg";
 
   let t=document.createElement("p");
-  t.innerText=lang==="en"?"About me":"关于我";
+  t.innerText=text.about[lang];
 
   m.appendChild(img);
   m.appendChild(t);
+
   app.appendChild(m);
 }
 
-/* ===== 资源加载（自动匹配图片/视频）===== */
-function renderAssets(path,module){
-  module.querySelectorAll(".item").forEach(i=>i.remove());
+/* 资源加载 */
+function renderAssets(path,m){
+  m.querySelectorAll(".item").forEach(i=>i.remove());
 
   for(let i=1;i<=20;i++){
     ["jpg","png","gif","mp4"].forEach(ext=>{
@@ -158,13 +173,12 @@ function renderAssets(path,module){
         let d=document.createElement("div");
         d.className="item";
         d.appendChild(el);
-        module.appendChild(d);
+        m.appendChild(d);
       };
     });
   }
 }
 
-/* ===== 通用 ===== */
 function createModule(){
   let d=document.createElement("div");
   d.className="module";
@@ -172,5 +186,5 @@ function createModule(){
 }
 
 /* 初始化 */
-initHeader();
+document.getElementById("btn-lang").innerText="EN";
 showHome();
