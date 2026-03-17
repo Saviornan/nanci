@@ -5,6 +5,11 @@ body{
   overflow-x:hidden;
 }
 
+/* 背景兜底（防止变黑字） */
+body, button{
+  color:white;
+}
+
 /* header */
 header{
   position:fixed;
@@ -22,16 +27,10 @@ header{
 .header-buttons button{
   background:rgba(255,255,255,0.08);
   border:1px solid rgba(255,255,255,0.3);
-  color:white;
   padding:6px 16px;
   border-radius:20px;
   cursor:pointer;
   backdrop-filter:blur(10px);
-  transition:0.3s;
-}
-
-.header-buttons button:hover{
-  background:rgba(255,255,255,0.2);
 }
 
 /* 返回按钮 */
@@ -45,26 +44,20 @@ header{
   border-radius:20px;
   background:rgba(255,255,255,0.08);
   border:1px solid rgba(255,255,255,0.3);
-  backdrop-filter:blur(10px);
   cursor:pointer;
 }
 
-.back-btn:active{
-  transform:scale(0.9);
-}
-
-/* 模块 */
+/* 页面模块 */
 .module{
   min-height:100vh;
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:flex-start;
   padding-top:120px;
 
   opacity:0;
   transform:translateY(60px);
-  transition:0.6s ease;
+  transition:0.6s;
 }
 
 .module.show{
@@ -72,71 +65,46 @@ header{
   transform:translateY(0);
 }
 
-/* 标题 */
 h1{
   font-size:72px;
 }
 
 .subtitle{
-  font-size:28px;
+  font-size:26px;
   margin:20px 0 40px;
 }
 
 /* 首页按钮 */
 .home-actions{
   display:flex;
-  gap:24px;
+  gap:20px;
 }
 
 .home-actions button{
-  font-size:20px;
-  padding:14px 32px;
+  padding:14px 30px;
   border-radius:30px;
-  border:1px solid rgba(255,255,255,0.3);
   background:rgba(255,255,255,0.08);
-  backdrop-filter:blur(12px);
-  transition:0.25s;
+  border:1px solid rgba(255,255,255,0.3);
+  cursor:pointer;
 }
 
-.home-actions button:hover{
-  background:rgba(255,255,255,0.2);
-}
-
-.home-actions button:active{
-  transform:scale(0.9);
-  background:rgba(0,0,0,0.4);
-}
-
-/* 分类按钮 */
+/* 分类 */
 .tabs{
   display:flex;
   gap:16px;
-  margin-bottom:40px;
+  margin-bottom:30px;
 }
 
 .tabs button{
-  font-size:18px;
-  padding:12px 26px;
+  padding:10px 22px;
   border-radius:30px;
-  border:1px solid rgba(255,255,255,0.25);
+  border:1px solid rgba(255,255,255,0.3);
   background:rgba(255,255,255,0.06);
-  color:white;
   cursor:pointer;
-  backdrop-filter:blur(12px);
-  transition:0.25s;
-}
-
-.tabs button:hover{
-  background:rgba(255,255,255,0.18);
-}
-
-.tabs button:active{
-  transform:scale(0.88);
-  background:rgba(0,0,0,0.5);
 }
 
 .tabs button.active{
-  background:rgba(255,255,255,0.28);
+  background:rgba(255,255,255,0.3);
 }
 
 /* 内容 */
@@ -151,16 +119,15 @@ h1{
   border-radius:12px;
 }
 
-/* 扩散动画 */
+/* 扩散 */
 .expand-overlay{
   position:fixed;
   width:20px;
   height:20px;
   border-radius:50%;
-  background:rgba(255,255,255,0.15);
-  backdrop-filter:blur(20px);
+  background:rgba(255,255,255,0.2);
   transform:scale(1);
-  transition:transform 0.6s ease;
+  transition:0.6s;
   z-index:99;
 }
 
