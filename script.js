@@ -70,17 +70,25 @@ function createBackButton(){
   b.innerText="←";
 
   b.onclick=()=>{
+  if(currentPage===showCreations){
     if(inDetailView){
       showCreations();
-      backToListOnce=true;
+      inDetailView=false;
     }else{
-      if(backToListOnce){
-        showHome();
-        backToListOnce=false;
-      }
+      showHome();
     }
-  };
+  }
 
+  else if(currentPage===showProjects){
+    if(inDetailView){
+      showProjects();
+      inDetailView=false;
+    }else{
+      showHome();
+    }
+  }
+};
+  
   document.body.appendChild(b);
 }
 
