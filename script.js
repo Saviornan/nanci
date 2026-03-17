@@ -6,17 +6,18 @@ let inDetailView=false;
 let backToListOnce=false;
 let lang="en";
 
-/* 文案 */
 let text={
-  home:{en:"Welcome to my portfolio",cn:"欢迎来到我的作品集"},
-  about:{en:"About me",cn:"关于我"}
+  home:{
+    cn:"欢迎来到楠茜的作品集",
+    en:"Welcome to Nancy's Portfolio"
+  },
+  about:{
+    cn:"关于我",
+    en:"About Me"
+  }
 };
 
-/* 背景 */
-document.body.style.background=
-"linear-gradient(120deg,#e9edf3,#f4f6fb)";
-
-/* header按钮 */
+/* header */
 document.getElementById("btn-about").onclick=()=>{
   if(currentPage===showAbout){
     showHome();
@@ -30,6 +31,21 @@ document.getElementById("btn-lang").onclick=()=>{
   document.getElementById("btn-lang").innerText=lang.toUpperCase();
   currentPage();
 };
+
+/* 打字机 */
+function typeWriter(el,text,speed,callback){
+  el.innerHTML="";
+  let i=0;
+
+  let timer=setInterval(()=>{
+    el.innerHTML+=text[i];
+    i++;
+    if(i>=text.length){
+      clearInterval(timer);
+      if(callback) callback();
+    }
+  },speed);
+}
 
 /* 返回 */
 function createBackButton(){
@@ -52,14 +68,15 @@ function createBackButton(){
   document.body.appendChild(b);
 }
 
-/* 扩散 */
+/* 爆炸 */
 function expandFromButton(btn,callback){
   let rect=btn.getBoundingClientRect();
 
   let o=document.createElement("div");
   o.className="expand-overlay";
-  o.style.left=rect.left+"px";
-  o.style.top=rect.top+"px";
+
+  o.style.left=rect.left+rect.width/2+"px";
+  o.style.top=rect.top+rect.height/2+"px";
 
   document.body.appendChild(o);
 
@@ -68,7 +85,7 @@ function expandFromButton(btn,callback){
   setTimeout(()=>{
     o.remove();
     callback();
-  },500);
+  },550);
 }
 
 /* 动画 */
@@ -92,31 +109,28 @@ function showHome(){
   let m=createModule();
 
   let h=document.createElement("h1");
-  h.innerText="NANCI";
-
-  let sub=document.createElement("div");
-  sub.className="subtitle";
-  sub.innerText=text.home[lang];
 
   let box=document.createElement("div");
   box.className="home-actions";
 
   let b1=document.createElement("button");
   b1.innerText="Creations";
-  b1.onclick=(e)=>expandFromButton(e.target,showCreations);
+  b1.onclick=(e)=>expandFromButton(e.currentTarget,showCreations);
 
   let b2=document.createElement("button");
   b2.innerText="Projects";
-  b2.onclick=(e)=>expandFromButton(e.target,showProjects);
+  b2.onclick=(e)=>expandFromButton(e.currentTarget,showProjects);
 
   box.appendChild(b1);
   box.appendChild(b2);
 
   m.appendChild(h);
-  m.appendChild(sub);
   m.appendChild(box);
-
   app.appendChild(m);
+
+  typeWriter(h,text.home[lang],60,()=>{
+    box.style.opacity="1";
+  });
 }
 
 /* Creations */
@@ -138,15 +152,7 @@ function showCreations(){
     b.innerText=cat.toUpperCase();
 
     b.onclick=()=>{
-      tabs.querySelectorAll("button").forEach(btn=>btn.classList.remove("active"));
-      b.classList.add("active");
-
-      currentCategory=cat;
-      inDetailView=true;
-      backToListOnce=false;
-
-      renderAssets(`assets/creations/${cat}`,m);
-      animateItems(m);
+      openCategoryPage(cat);
     };
 
     tabs.appendChild(b);
@@ -154,6 +160,28 @@ function showCreations(){
 
   m.appendChild(tabs);
   app.appendChild(m);
+}
+
+/* 分类页 */
+function openCategoryPage(cat){
+  currentCategory=cat;
+  inDetailView=true;
+  backToListOnce=false;
+
+  app.innerHTML="";
+  document.querySelectorAll(".back-btn").forEach(e=>e.remove());
+  createBackButton();
+
+  let m=createModule();
+
+  let title=document.createElement("h1");
+  title.innerText=cat.toUpperCase();
+
+  m.appendChild(title);
+  app.appendChild(m);
+
+  renderAssets(`assets/creations/${cat}`,m);
+  animateItems(m);
 }
 
 /* About */
@@ -189,9 +217,6 @@ function showProjects(){
     b.innerText=p;
 
     b.onclick=()=>{
-      tabs.querySelectorAll("button").forEach(btn=>btn.classList.remove("active"));
-      b.classList.add("active");
-
       renderAssets(`assets/projects/${p}`,m);
       animateItems(m);
     };
@@ -211,7 +236,7 @@ function createModule(){
   return d;
 }
 
-/* 资源加载 */
+/* 资源 */
 function renderAssets(path,m){
   m.querySelectorAll(".item").forEach(i=>i.remove());
 
@@ -240,6 +265,5 @@ function renderAssets(path,m){
   }
 }
 
-/* 初始化 */
 document.getElementById("btn-lang").innerText="EN";
 showHome();
