@@ -1,11 +1,11 @@
 let app=document.getElementById("app");
 
-let currentPage;
+let currentPage=showHome;
 let currentCategory=null;
 let inDetailView=false;
-let backToListOnce=false;
 let lang="en";
 
+/* 文本 */
 let text={
   home:{
     cn:"欢迎来到楠茜的作品集",
@@ -30,7 +30,7 @@ let text={
   }
 };
 
-/* header */
+/* Header */
 document.getElementById("btn-about").onclick=()=>{
   if(currentPage===showAbout){
     showHome();
@@ -42,10 +42,9 @@ document.getElementById("btn-about").onclick=()=>{
 document.getElementById("btn-lang").onclick=()=>{
   lang=lang==="en"?"cn":"en";
   document.getElementById("btn-lang").innerText=lang.toUpperCase();
-
   document.getElementById("btn-about").innerText=text.about[lang];
 
-  currentPage();
+  if(currentPage) currentPage();
 };
 
 /* 打字机 */
@@ -63,36 +62,36 @@ function typeWriter(el,text,speed,callback){
   },speed);
 }
 
-/* 返回 */
+/* 返回按钮 */
 function createBackButton(){
   let b=document.createElement("button");
   b.className="back-btn";
   b.innerText="←";
 
   b.onclick=()=>{
-  if(currentPage===showCreations){
-    if(inDetailView){
-      showCreations();
-      inDetailView=false;
-    }else{
-      showHome();
+    if(currentPage===showCreations){
+      if(inDetailView){
+        showCreations();
+        inDetailView=false;
+      }else{
+        showHome();
+      }
     }
-  }
 
-  else if(currentPage===showProjects){
-    if(inDetailView){
-      showProjects();
-      inDetailView=false;
-    }else{
-      showHome();
+    else if(currentPage===showProjects){
+      if(inDetailView){
+        showProjects();
+        inDetailView=false;
+      }else{
+        showHome();
+      }
     }
-  }
-};
-  
+  };
+
   document.body.appendChild(b);
 }
 
-/* 爆炸 */
+/* 爆炸动画 */
 function expandFromButton(btn,callback){
   let rect=btn.getBoundingClientRect();
 
@@ -109,7 +108,7 @@ function expandFromButton(btn,callback){
   setTimeout(()=>{
     o.remove();
     callback();
-  },550);
+  },500);
 }
 
 /* 动画 */
@@ -190,7 +189,6 @@ function showCreations(){
 function openCategoryPage(cat){
   currentCategory=cat;
   inDetailView=true;
-  backToListOnce=false;
 
   app.innerHTML="";
   document.querySelectorAll(".back-btn").forEach(e=>e.remove());
@@ -217,7 +215,9 @@ function showAbout(){
   let m=createModule();
 
   let t=document.createElement("p");
-  t.innerText=text.about[lang];
+  t.innerText=lang==="cn"
+    ?"这里是楠茜的个人介绍，可以写你的经历、风格、联系方式。"
+    :"This is Nancy's introduction. You can write your background, style and contact here.";
 
   m.appendChild(t);
   app.appendChild(m);
@@ -227,6 +227,7 @@ function showAbout(){
 function showProjects(){
   currentPage=showProjects;
   app.innerHTML="";
+  inDetailView=false;
 
   document.querySelectorAll(".back-btn").forEach(e=>e.remove());
   createBackButton();
@@ -241,14 +242,34 @@ function showProjects(){
     b.innerText=p;
 
     b.onclick=()=>{
-  openProjectPage(p);
-};
-    
+      openProjectPage(p);
+    };
+
     tabs.appendChild(b);
   });
 
   m.appendChild(tabs);
   app.appendChild(m);
+}
+
+/* 项目详情 */
+function openProjectPage(p){
+  inDetailView=true;
+
+  app.innerHTML="";
+  document.querySelectorAll(".back-btn").forEach(e=>e.remove());
+  createBackButton();
+
+  let m=createModule();
+
+  let title=document.createElement("h1");
+  title.innerText=p;
+
+  m.appendChild(title);
+  app.appendChild(m);
+
+  renderAssets(`assets/projects/${p}`,m);
+  animateItems(m);
 }
 
 /* 模块 */
@@ -259,7 +280,7 @@ function createModule(){
   return d;
 }
 
-/* 资源 */
+/* 资源加载（稳定版） */
 function renderAssets(path,m){
   m.querySelectorAll(".item").forEach(i=>i.remove());
 
@@ -303,3 +324,10 @@ function renderAssets(path,m){
     });
   }
 }
+
+/* 初始化（关键） */
+window.onload=()=>{
+  document.getElementById("btn-lang").innerText="EN";
+  document.getElementById("btn-about").innerText=text.about[lang];
+  showHome();
+};
