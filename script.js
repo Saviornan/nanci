@@ -325,6 +325,11 @@ function renderAssets(path,m){
   }
 }
 
+document.addEventListener("mousemove",e=>{
+  document.body.style.setProperty("--x",e.clientX+"px");
+  document.body.style.setProperty("--y",e.clientY+"px");
+});
+
 /* 初始化（关键） */
 window.onload=()=>{
   document.getElementById("btn-lang").innerText="EN";
