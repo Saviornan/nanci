@@ -1,219 +1,176 @@
 let lang = "en";
+let app = document.getElementById("app");
 
-// JSON 数据直接写在 JS 里，避免 fetch / 路径问题
-let data = {
-  creations: ["2d","ai","3d"],
-  projects: ["projectA"],
-  text: {
-    creations: {en:"Creations", cn:"个人创作"},
-    projects: {en:"Projects", cn:"项目"},
-    "2d": {en:"2D", cn:"二维"},
-    ai: {en:"AI", cn:"AI生成"},
-    "3d": {en:"3D", cn:"三维"}
-  }
+/* ===== 数据 ===== */
+let text = {
+  home: {en:"Welcome to my portfolio", cn:"欢迎来到我的作品集"},
+  creations: {en:"Creations", cn:"个人创作"},
+  projects: {en:"Projects", cn:"项目"}
 };
 
-const app = document.getElementById("app");
+/* ===== 头部按钮 ===== */
+document.getElementById("btn-home").onclick = showHome;
+document.getElementById("btn-creations").onclick = showCreations;
+document.getElementById("btn-projects").onclick = showProjects;
+document.getElementById("btn-about").onclick = showAbout;
 
-// 初始化头部
-function initHeader(){
-  document.getElementById("btn-creations").innerText = data.text.creations[lang];
-  document.getElementById("btn-projects").innerText = data.text.projects[lang];
-  document.getElementById("btn-lang").innerText = lang.toUpperCase();
-}
-
-// 语言切换
 document.getElementById("btn-lang").onclick = () => {
   lang = lang==="en"?"cn":"en";
   initHeader();
-  currentRender();
+  showHome();
 };
 
-// 头部按钮
-document.getElementById("btn-creations").onclick = showCreations;
-document.getElementById("btn-projects").onclick = showProjects;
+function initHeader(){
+  document.getElementById("btn-creations").innerText = text.creations[lang];
+  document.getElementById("btn-projects").innerText = text.projects[lang];
+  document.getElementById("btn-lang").innerText = lang.toUpperCase();
+}
 
-let currentRender = showHome;
+/* ===== 打字机效果 ===== */
+let typingTimer;
+function typeText(el, str){
+  clearInterval(typingTimer);
+  el.innerText="";
+  let i=0;
+  typingTimer = setInterval(()=>{
+    if(i<str.length){
+      el.innerText += str[i];
+      i++;
+    }else{
+      clearInterval(typingTimer);
+    }
+  },50);
+}
 
-// 背景渐变
-let hue = 200;
-document.addEventListener("mousemove", e => {
-  let x = e.clientX/window.innerWidth;
-  let y = e.clientY/window.innerHeight;
-  document.body.style.background =
-    `linear-gradient(${120 + x*30}deg,
-    hsl(${hue + y*20},50%,60%),
-    hsl(${hue + 50 + y*20},50%,65%))`;
+/* ===== 背景 ===== */
+let hue=200;
+document.addEventListener("mousemove",e=>{
+  let x=e.clientX/window.innerWidth;
+  let y=e.clientY/window.innerHeight;
+
+  document.body.style.background=
+  `linear-gradient(${120+x*30}deg,
+  hsl(${hue+y*20},60%,70%),
+  hsl(${hue+40+y*20},60%,75%))`;
 });
+
 function animate(){
-  hue += 0.1;
+  hue+=0.05;
   requestAnimationFrame(animate);
 }
 animate();
 
-/* ================= 首页 ================= */
+/* ===== 页面切换 ===== */
 function showHome(){
-  currentRender = showHome;
   app.innerHTML="";
+  let m=createModule();
 
-  let module = createModule();
+  let title=document.createElement("h1");
+  title.innerText="NANCI";
 
-  let title = document.createElement("h1");
-  title.innerText = "NANCI";
-  module.appendChild(title);
+  let sub=document.createElement("div");
+  sub.className="subtitle";
+  typeText(sub, text.home[lang]);
 
-  let sub = document.createElement("p");
-  sub.innerText = lang==="en" ? "Portfolio / Selected Works" : "作品集 / 精选内容";
-  module.appendChild(sub);
-
-  let btnCreations = document.createElement("button");
-  btnCreations.innerText = data.text.creations[lang];
-  btnCreations.onclick = showCreations;
-
-  let btnProjects = document.createElement("button");
-  btnProjects.innerText = data.text.projects[lang];
-  btnProjects.onclick = showProjects;
-
-  let btnAbout = document.createElement("button");
-  btnAbout.innerText = "About";
-  btnAbout.onclick = showAbout;
-
-  module.appendChild(btnCreations);
-  module.appendChild(btnProjects);
-  module.appendChild(btnAbout);
-
-  app.appendChild(module);
+  m.appendChild(title);
+  m.appendChild(sub);
+  app.appendChild(m);
 }
 
-/* ================= Creations ================= */
+/* ===== Creations ===== */
 function showCreations(){
-  currentRender = showCreations;
   app.innerHTML="";
-  let module = createModule();
+  let m=createModule();
 
-  let tabs = document.createElement("div");
+  let tabs=document.createElement("div");
   tabs.className="tabs";
 
-  data.creations.forEach(cat => {
-    let btn = document.createElement("button");
-    btn.innerText = data.text[cat][lang];
-    btn.onclick = () => renderCategory(cat,module);
-    tabs.appendChild(btn);
+  ["2d","ai","3d"].forEach(cat=>{
+    let b=document.createElement("button");
+    b.innerText=cat.toUpperCase();
+    b.onclick=()=>renderAssets(`assets/creations/${cat}`,m);
+    tabs.appendChild(b);
   });
 
-  module.appendChild(tabs);
-  app.appendChild(module);
+  m.appendChild(tabs);
+  app.appendChild(m);
 
-  renderCategory(data.creations[0],module);
+  renderAssets("assets/creations/2d",m);
 }
 
-function renderCategory(cat,module){
-  module.querySelectorAll(".item").forEach(i=>i.remove());
-
-  for(let i=1;i<=20;i++){
-    let names = [`${i}.jpg`,`${i}.png`,`${i}.gif`,`${i}.mp4`];
-    names.forEach(name=>{
-      let path = `assets/creations/${cat}/${name}`;
-      let el;
-      if(name.includes(".mp4")){
-        el=document.createElement("video");
-        el.src=path;
-        el.controls=true;
-      }else{
-        el=document.createElement("img");
-        el.src=path;
-      }
-
-      el.onerror=()=>el.remove();
-      el.onload=()=>{
-        let div=document.createElement("div");
-        div.className="item";
-        div.appendChild(el);
-        module.appendChild(div);
-      };
-    });
-  }
-}
-
-/* ================= Projects ================= */
+/* ===== Projects ===== */
 function showProjects(){
-  currentRender = showProjects;
   app.innerHTML="";
-  let module = createModule();
+  let m=createModule();
 
-  data.projects.forEach(p => {
-    // 横向分类按钮
-    let tabs = document.createElement("div");
-    tabs.className="tabs";
+  let tabs=document.createElement("div");
+  tabs.className="tabs";
 
-    let btn = document.createElement("button");
-    btn.innerText = p;
-    btn.onclick = ()=>renderProject(p,module);
-    tabs.appendChild(btn);
-
-    module.appendChild(tabs);
-    app.appendChild(module);
-
-    // 默认显示第一个项目
-    renderProject(p,module);
+  ["projectA"].forEach(p=>{
+    let b=document.createElement("button");
+    b.innerText=p;
+    b.onclick=()=>renderAssets(`assets/projects/${p}`,m);
+    tabs.appendChild(b);
   });
+
+  m.appendChild(tabs);
+  app.appendChild(m);
+
+  renderAssets("assets/projects/projectA",m);
 }
 
-function renderProject(p,module){
+/* ===== About ===== */
+function showAbout(){
+  app.innerHTML="";
+  let m=createModule();
+
+  let img=document.createElement("img");
+  img.src="assets/about/profile.jpg";
+
+  let t=document.createElement("p");
+  t.innerText=lang==="en"?"About me":"关于我";
+
+  m.appendChild(img);
+  m.appendChild(t);
+  app.appendChild(m);
+}
+
+/* ===== 资源加载（自动匹配图片/视频）===== */
+function renderAssets(path,module){
   module.querySelectorAll(".item").forEach(i=>i.remove());
 
   for(let i=1;i<=20;i++){
-    let names = [`${i}.jpg`,` ${i}.png`,`${i}.mp4`];
-    names.forEach(name=>{
-      let path = `assets/projects/${p}/${name}`;
+    ["jpg","png","gif","mp4"].forEach(ext=>{
+      let file=`${path}/${i}.${ext}`;
       let el;
-      if(name.includes(".mp4")){
+
+      if(ext==="mp4"){
         el=document.createElement("video");
-        el.src=path;
+        el.src=file;
         el.controls=true;
       }else{
         el=document.createElement("img");
-        el.src=path;
+        el.src=file;
       }
 
       el.onerror=()=>el.remove();
       el.onload=()=>{
-        let div=document.createElement("div");
-        div.className="item";
-        div.appendChild(el);
-        module.appendChild(div);
+        let d=document.createElement("div");
+        d.className="item";
+        d.appendChild(el);
+        module.appendChild(d);
       };
     });
   }
 }
 
-/* ================= About ================= */
-function showAbout(){
-  currentRender = showAbout;
-  app.innerHTML="";
-  let module = createModule();
-
-  let img = document.createElement("img");
-  img.src = "assets/about/profile.jpg";
-  img.style.maxWidth="300px";
-
-  let text = document.createElement("p");
-  text.innerText = lang==="en" ? "About me" : "关于我";
-
-  module.appendChild(img);
-  module.appendChild(text);
-
-  app.appendChild(module);
-}
-
-/* ================= 通用模块 ================= */
+/* ===== 通用 ===== */
 function createModule(){
-  let m=document.createElement("div");
-  m.className="module active";
-  return m;
+  let d=document.createElement("div");
+  d.className="module";
+  return d;
 }
 
-// 初始化头部和首页
+/* 初始化 */
 initHeader();
 showHome();
-
