@@ -14,6 +14,14 @@
       "link_text":{"en":"View","cn":"查看"}
     },
     {
+      "title":{"en":"3D Project 1","cn":"3D作品1"},
+      "folder":"assets/creations/3d",
+      "type":"mixed",
+      "description":{"en":"Sample 3D project","cn":"3D项目示例"},
+      "link":"#",
+      "link_text":{"en":"View","cn":"查看"}
+    },
+    {
       "title":{"en":"AI Project 1","cn":"AI生成1"},
       "folder":"assets/creations/ai",
       "type":"mixed",
