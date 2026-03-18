@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<canvas id="bgCanvas"></canvas>
 
 <header>
   <div class="header-buttons">
@@ -18,10 +19,9 @@
 
 <!-- Lightbox -->
 <div id="lightbox" class="lightbox">
-  <span class="close">&times;</span>
-  <img class="lightbox-content" id="lightbox-img">
-  <video class="lightbox-content" id="lightbox-video" controls></video>
-  <div id="lightbox-caption"></div>
+  <span id="lbClose">&times;</span>
+  < img id="lbImg" src="">
+  <video id="lbVideo" controls autoplay style="display:none;"></video>
 </div>
 
 <script src="script.js"></script>
