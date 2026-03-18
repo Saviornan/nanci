@@ -1,41 +1,26 @@
-/* 通用样式 */
-body,html{
+body{
   margin:0;
-  padding:0;
   font-family:sans-serif;
   overflow-x:hidden;
-  height:100%;
-  width:100%;
   background:#000;
   color:#fff;
-  position:relative;
 }
 
-/* Canvas背景 */
-#bg-canvas{
-  position:fixed;
-  inset:0;
-  z-index:0;
+h1, button, p {
+  font-weight:700;
+  text-shadow:0 2px 8px rgba(0,0,0,0.5);
 }
 
-/* 文字阴影 */
-h1,.subtitle,button,p{
-  text-shadow:0 2px 10px rgba(0,0,0,0.5);
-}
-
-/* 首页标题 */
 h1{
   font-size:64px;
-  font-weight:800;
-  text-align:center;
-  margin-bottom:40px;
+  margin-bottom:20px;
 }
 
-/* Header */
 header{
   position:fixed;
-  top:20px;
-  right:40px;
+  top:0;
+  right:0;
+  padding:20px 40px;
   z-index:100;
 }
 
@@ -53,7 +38,6 @@ header{
   color:white;
 }
 
-/* 返回 */
 .back-btn{
   position:fixed;
   top:20px;
@@ -64,16 +48,15 @@ header{
   border-radius:20px;
   background:rgba(255,255,255,0.08);
   border:1px solid rgba(255,255,255,0.3);
-  color:white;
+  cursor:pointer;
 }
 
-/* 页面模块 */
 .module{
   min-height:100vh;
   display:flex;
   flex-direction:column;
   align-items:center;
-  padding-top:150px;
+  padding-top:120px;
   opacity:0;
   transform:translateY(40px);
   transition:0.6s;
@@ -84,7 +67,6 @@ header{
   transform:translateY(0);
 }
 
-/* 首页按钮 */
 .home-actions{
   display:flex;
   gap:20px;
@@ -99,10 +81,9 @@ header{
   border:1px solid rgba(255,255,255,0.3);
   font-size:18px;
   font-weight:700;
-  cursor:pointer;
+  color:white;
 }
 
-/* 分类按钮 */
 .tabs{
   display:flex;
   gap:16px;
@@ -117,16 +98,13 @@ header{
   font-size:16px;
   font-weight:600;
   color:white;
-  cursor:pointer;
 }
 
 .tabs button.active{
   background:rgba(255,255,255,0.25);
-  color:white;
   transform:scale(1.05);
 }
 
-/* 内容 */
 .item{
   margin:15px;
   opacity:0;
@@ -152,4 +130,11 @@ header{
 
 .expand-overlay.active{
   transform:translate(-50%,-50%) scale(120);
+}
+
+/* Canvas 全屏 */
+#bg-canvas{
+  position:fixed;
+  inset:0;
+  z-index:-1;
 }
