@@ -1,4 +1,3 @@
-
 {
   "header": {
     "creations": {"en":"Creations","cn":"个人创作"},
@@ -8,7 +7,7 @@
   "creations": [
     {
       "title":{"en":"2D Project 1","cn":"2D作品1"},
-      "folder":"assets/creations/2d_project1",
+      "folder":"assets/creations/2d",
       "type":"mixed",
       "description":{"en":"Sample 2D project","cn":"2D项目示例"},
       "link":"#",
@@ -16,7 +15,7 @@
     },
     {
       "title":{"en":"AI Project 1","cn":"AI生成1"},
-      "folder":"assets/creations/ai_project1",
+      "folder":"assets/creations/ai",
       "type":"mixed",
       "description":{"en":"AI generated project","cn":"AI生成示例"},
       "link":"#",
