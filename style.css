@@ -1,10 +1,16 @@
-body, html{
-  margin:0; padding:0;
+html,body{
+  margin:0;
+  padding:0;
   font-family:sans-serif;
-  overflow-x:hidden;
   background:#000;
   color:white;
-  position:relative;
+  height:100%;
+  width:100%;
+}
+
+body{
+  display:flex;
+  flex-direction:column;
 }
 
 h1{
@@ -56,8 +62,8 @@ header{
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:flex-start;
-  padding-top:120px;
+  justify-content:center; /* 垂直居中 */
+  padding-top:80px; 
   opacity:0;
   transform:translateY(40px);
   transition:0.6s;
@@ -80,6 +86,8 @@ header{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
   gap:15px;
+  width:90%;
+  max-width:1200px;
 }
 .grid .item img, .grid .item video{
   width:100%;
@@ -104,14 +112,3 @@ header{
   z-index:1001;
 }
 #lbImg, #lbVideo{max-width:90%; max-height:90%; border-radius:12px;}
-.expand-overlay{
-  position:fixed;
-  width:30px; height:30px;
-  border-radius:50%;
-  background:white;
-  transform:translate(-50%,-50%) scale(0);
-  transition:0.6s cubic-bezier(.7,0,.2,1);
-  z-index:999;
-}
-.expand-overlay.active{transform:translate(-50%,-50%) scale(120);}
-
