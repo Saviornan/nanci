@@ -1,92 +1,128 @@
-/* 基本设置 */
-body{
+/* 通用样式 */
+body,html{
   margin:0;
+  padding:0;
   font-family:sans-serif;
   overflow-x:hidden;
   height:100%;
-  color:white;
-  background:linear-gradient(120deg,#111,#222,#333);
-  background-size:200% 200%;
-  animation:bgMove 12s ease infinite;
+  width:100%;
+  background:#000;
+  color:#fff;
+  position:relative;
 }
 
-@keyframes bgMove{
-  0%{background-position:0% 50%;}
-  50%{background-position:100% 50%;}
-  100%{background-position:0% 50%;}
-}
-
-body::after{
-  content:"";
+/* Canvas背景 */
+#bg-canvas{
   position:fixed;
   inset:0;
-  pointer-events:none;
-  background:radial-gradient(circle at var(--x,50%) var(--y,50%), rgba(255,255,255,0.15), transparent 40%);
+  z-index:0;
 }
 
-/* 文字 */
-h1, h2, h3, p, button {
-  text-shadow:0 3px 10px rgba(0,0,0,0.18),0 0 2px rgba(0,0,0,0.25);
-  color:white;
+/* 文字阴影 */
+h1,.subtitle,button,p{
+  text-shadow:0 2px 10px rgba(0,0,0,0.5);
 }
 
-h1{ font-size:64px; font-weight:800; text-align:center; }
+/* 首页标题 */
+h1{
+  font-size:64px;
+  font-weight:800;
+  text-align:center;
+  margin-bottom:40px;
+}
 
-/* header */
-header{ position:fixed; top:0; right:0; padding:20px 40px; z-index:100; }
-.header-buttons{ display:flex; gap:12px; }
+/* Header */
+header{
+  position:fixed;
+  top:20px;
+  right:40px;
+  z-index:100;
+}
+
+.header-buttons{
+  display:flex;
+  gap:12px;
+}
+
 .header-buttons button{
   background:rgba(255,255,255,0.08);
   border:1px solid rgba(255,255,255,0.3);
+  padding:6px 16px;
   border-radius:20px;
-  padding:6px 14px;
   cursor:pointer;
+  color:white;
 }
 
-/* 返回按钮 */
+/* 返回 */
 .back-btn{
   position:fixed;
-  top:20px; left:30px;
+  top:20px;
+  left:30px;
   z-index:100;
   font-size:22px;
   padding:6px 14px;
   border-radius:20px;
   background:rgba(255,255,255,0.08);
   border:1px solid rgba(255,255,255,0.3);
+  color:white;
 }
 
-/* 模块 */
+/* 页面模块 */
 .module{
   min-height:100vh;
   display:flex;
   flex-direction:column;
   align-items:center;
-  padding-top:120px;
+  padding-top:150px;
   opacity:0;
   transform:translateY(40px);
   transition:0.6s;
 }
-.module.show{ opacity:1; transform:translateY(0); }
+
+.module.show{
+  opacity:1;
+  transform:translateY(0);
+}
 
 /* 首页按钮 */
-.home-actions{ display:flex; gap:20px; opacity:0; transition:0.6s; }
+.home-actions{
+  display:flex;
+  gap:20px;
+  opacity:0;
+  transition:0.6s;
+}
+
 .home-actions button{
   padding:14px 30px;
   border-radius:30px;
   background:rgba(255,255,255,0.08);
   border:1px solid rgba(255,255,255,0.3);
-  font-size:18px; font-weight:700;
+  font-size:18px;
+  font-weight:700;
+  cursor:pointer;
 }
 
-/* 分类 */
-.tabs{ display:flex; gap:16px; margin-bottom:30px; }
-.tabs button{
-  padding:12px 26px; border-radius:30px;
-  border:none; background:rgba(255,255,255,0.08);
-  font-size:16px; font-weight:600;
+/* 分类按钮 */
+.tabs{
+  display:flex;
+  gap:16px;
+  margin-bottom:30px;
 }
+
+.tabs button{
+  padding:12px 26px;
+  border-radius:30px;
+  border:none;
+  background:rgba(255,255,255,0.08);
+  font-size:16px;
+  font-weight:600;
+  color:white;
+  cursor:pointer;
+}
+
 .tabs button.active{
-  background:rgba(255,255,255,0.25); color:white;
+  background:rgba(255,255,255,0.25);
+  color:white;
   transform:scale(1.05);
 }
 
@@ -96,14 +132,24 @@ header{ position:fixed; top:0; right:0; padding:20px 40px; z-index:100; }
   opacity:0;
   transform:translateY(40px);
 }
-.item img, .item video{
-  max-width:420px; border-radius:12px;
+
+.item img,.item video{
+  max-width:420px;
+  border-radius:12px;
 }
 
 /* 爆炸动画 */
 .expand-overlay{
-  position:fixed; width:30px; height:30px; border-radius:50%;
-  background:white; transform:translate(-50%,-50%) scale(0);
-  transition:0.6s cubic-bezier(.7,0,.2,1); z-index:999;
+  position:fixed;
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  background:white;
+  transform:translate(-50%,-50%) scale(0);
+  transition:0.6s cubic-bezier(.7,0,.2,1);
+  z-index:999;
 }
-.expand-overlay.active{ transform:translate(-50%,-50%) scale(120); }
+
+.expand-overlay.active{
+  transform:translate(-50%,-50%) scale(120);
+}
