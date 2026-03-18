@@ -1,13 +1,14 @@
 
 /* 基本样式 */
-body{
-  margin:0;
-  font-family:sans-serif;
-  overflow-x:hidden;
-  background:linear-gradient(120deg,#f3f4ff,#e8f0ff,#f9f6ff);
-  background-size:200% 200%;
-  animation:bgMove 12s ease infinite;
+body {
+  margin: 0;
+  font-family: sans-serif;
+  overflow-x: hidden;
+  background-color: #000; /* 黑色背景 */
+  color: white;
+  height: 100vh; /* 确保 body 填满屏幕 */
 }
+
 
 /* 背景动画 */
 @keyframes bgMove{
@@ -67,22 +68,20 @@ header{
   color:white;
 }
 
-/* 模块居中 */
-.module{
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  padding-top:0;
-  opacity:0;
-  transform:translateY(40px);
-  transition:0.6s;
+/* 首页模块垂直居中 */
+.module {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* 垂直居中 */
+  opacity: 0;
+  transform: translateY(40px);
+  transition: 0.6s;
 }
-
-.module.show{
-  opacity:1;
-  transform:translateY(0);
+.module.show {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* 首页按钮 */
