@@ -4,6 +4,7 @@
     "creations": {"en":"Creations","cn":"个人创作"},
     "projects": {"en":"Projects","cn":"项目"},
     "lang": {"en":"EN","cn":"中文"}
+    "about": {"en":"EN","cn":"关于我"}
   },
   "creations": [
     {"title":{"en":"2D","cn":"二维"},"folder":"assets/creations/2d"},
