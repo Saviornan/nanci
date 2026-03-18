@@ -1,13 +1,17 @@
+
 {
+  "header": {
+    "creations": {"en":"Creations","cn":"个人创作"},
+    "projects": {"en":"Projects","cn":"项目"},
+    "lang": {"en":"EN","cn":"中文"}
+  },
   "creations": [
-    {"folder":"assets/creations/2d"},
-    {"folder":"assets/creations/3d"},
-    {"folder":"assets/creations/ai"}
+    {"title":{"en":"2D","cn":"二维"},"folder":"assets/creations/2d"},
+    {"title":{"en":"3D","cn":"三维"},"folder":"assets/creations/3d"},
+    {"title":{"en":"AI","cn":"AI生成"},"folder":"assets/creations/ai"}
   ],
   "projects": [
-    {"folder":"assets/projects"}
+    {"title":{"en":"Project A","cn":"项目A"},"folder":"assets/projects/projectA"}
   ],
-  "about":[
-    {"media":"assets/about/profile.jpg"}
-  ]
+  "about":[{"media":"assets/about/profile.jpg"}]
 }
