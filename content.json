@@ -1,53 +1,13 @@
 {
-  "header": {
-    "creations": {"en":"Creations","cn":"个人创作"},
-    "projects": {"en":"Projects","cn":"项目"},
-    "lang": {"en":"EN","cn":"中文"}
-  },
   "creations": [
-    {
-      "title":{"en":"2D Project 1","cn":"2D作品1"},
-      "folder":"assets/creations/2d",
-      "type":"mixed",
-      "description":{"en":"Sample 2D project","cn":"2D项目示例"},
-      "link":"#",
-      "link_text":{"en":"View","cn":"查看"}
-    },
-    {
-      "title":{"en":"3D Project 1","cn":"3D作品1"},
-      "folder":"assets/creations/3d",
-      "type":"mixed",
-      "description":{"en":"Sample 3D project","cn":"3D项目示例"},
-      "link":"#",
-      "link_text":{"en":"View","cn":"查看"}
-    },
-    {
-      "title":{"en":"AI Project 1","cn":"AI生成1"},
-      "folder":"assets/creations/ai",
-      "type":"mixed",
-      "description":{"en":"AI generated project","cn":"AI生成示例"},
-      "link":"#",
-      "link_text":{"en":"View","cn":"查看"}
-    }
+    {"folder":"assets/creations/2d"},
+    {"folder":"assets/creations/3d"},
+    {"folder":"assets/creations/ai"}
   ],
   "projects": [
-    {
-      "title":{"en":"Project A","cn":"项目A"},
-      "folder":"assets/projects/projectA",
-      "type":"mixed",
-      "description":{"en":"Demo project","cn":"演示项目"},
-      "link":"#",
-      "link_text":{"en":"View","cn":"查看"}
-    }
+    {"folder":"assets/projects"}
   ],
-  "about": [
-    {
-      "title":{"en":"Profile","cn":"关于我"},
-      "type":"image",
-      "media":"assets/about/profile.jpg",
-      "description":{"en":"My profile","cn":"我的简介"},
-      "link":"#",
-      "link_text":{"en":"View","cn":"查看"}
-    }
+  "about":[
+    {"media":"assets/about/profile.jpg"}
   ]
 }
