@@ -43,15 +43,13 @@ document.getElementById("btn-lang").onclick=()=>{
   lang=lang==="en"?"cn":"en";
   document.getElementById("btn-lang").innerText=lang.toUpperCase();
   document.getElementById("btn-about").innerText=text.about[lang];
-
   if(currentPage) currentPage();
 };
 
-/* 打字机 */
+/* 打字机效果 */
 function typeWriter(el,text,speed,callback){
   el.innerHTML="";
   let i=0;
-
   let timer=setInterval(()=>{
     el.innerHTML+=text[i];
     i++;
@@ -67,7 +65,6 @@ function createBackButton(){
   let b=document.createElement("button");
   b.className="back-btn";
   b.innerText="←";
-
   b.onclick=()=>{
     if(currentPage===showCreations){
       if(inDetailView){
@@ -76,9 +73,7 @@ function createBackButton(){
       }else{
         showHome();
       }
-    }
-
-    else if(currentPage===showProjects){
+    }else if(currentPage===showProjects){
       if(inDetailView){
         showProjects();
         inDetailView=false;
@@ -87,34 +82,27 @@ function createBackButton(){
       }
     }
   };
-
   document.body.appendChild(b);
 }
 
 /* 爆炸动画 */
 function expandFromButton(btn,callback){
   let rect=btn.getBoundingClientRect();
-
   let o=document.createElement("div");
   o.className="expand-overlay";
-
   o.style.left=rect.left+rect.width/2+"px";
   o.style.top=rect.top+rect.height/2+"px";
-
   document.body.appendChild(o);
-
   setTimeout(()=>o.classList.add("active"),10);
-
   setTimeout(()=>{
     o.remove();
     callback();
   },500);
 }
 
-/* 动画 */
+/* 元素滑入动画 */
 function animateItems(m){
   let items=m.querySelectorAll(".item");
-
   items.forEach((el,i)=>{
     setTimeout(()=>{
       el.style.opacity="1";
@@ -130,7 +118,6 @@ function showHome(){
   document.querySelectorAll(".back-btn").forEach(e=>e.remove());
 
   let m=createModule();
-
   let h=document.createElement("h1");
 
   let box=document.createElement("div");
@@ -151,33 +138,25 @@ function showHome(){
   m.appendChild(box);
   app.appendChild(m);
 
-  typeWriter(h,text.home[lang],60,()=>{
-    box.style.opacity="1";
-  });
+  typeWriter(h,text.home[lang],60,()=>{box.style.opacity="1";});
 }
 
-/* Creations */
+/* Creations 列表页 */
 function showCreations(){
   currentPage=showCreations;
   app.innerHTML="";
   inDetailView=false;
-
   document.querySelectorAll(".back-btn").forEach(e=>e.remove());
   createBackButton();
 
   let m=createModule();
-
   let tabs=document.createElement("div");
   tabs.className="tabs";
 
   ["2d","3d","ai"].forEach(cat=>{
     let b=document.createElement("button");
     b.innerText=text.category[cat][lang];
-
-    b.onclick=()=>{
-      openCategoryPage(cat);
-    };
-
+    b.onclick=()=>openCategoryPage(cat);
     tabs.appendChild(b);
   });
 
@@ -185,24 +164,22 @@ function showCreations(){
   app.appendChild(m);
 }
 
-/* 分类页 */
+/* Creations 子分类页 */
 function openCategoryPage(cat){
   currentCategory=cat;
   inDetailView=true;
-
   app.innerHTML="";
   document.querySelectorAll(".back-btn").forEach(e=>e.remove());
   createBackButton();
 
   let m=createModule();
-
   let title=document.createElement("h1");
   title.innerText=text.category[cat][lang];
-
   m.appendChild(title);
   app.appendChild(m);
 
-  renderAssets(`assets/creations/${cat}`,m);
+  // 自动加载该文件夹下所有图片和视频
+  loadFolderAssets(`assets/creations/${cat}`, m);
   animateItems(m);
 }
 
@@ -213,38 +190,31 @@ function showAbout(){
   document.querySelectorAll(".back-btn").forEach(e=>e.remove());
 
   let m=createModule();
-
   let t=document.createElement("p");
-  t.innerText=lang==="cn"
-    ?"这里是楠茜的个人介绍，可以写你的经历、风格、联系方式。"
-    :"This is Nancy's introduction. You can write your background, style and contact here.";
+  t.innerText=lang==="cn"?
+    "这里是楠茜的个人介绍，可以写你的经历、风格、联系方式。":
+    "This is Nancy's introduction. You can write your background, style and contact here.";
 
   m.appendChild(t);
   app.appendChild(m);
 }
 
-/* Projects */
+/* Projects 列表 */
 function showProjects(){
   currentPage=showProjects;
   app.innerHTML="";
   inDetailView=false;
-
   document.querySelectorAll(".back-btn").forEach(e=>e.remove());
   createBackButton();
 
   let m=createModule();
-
   let tabs=document.createElement("div");
   tabs.className="tabs";
 
   ["projectA"].forEach(p=>{
     let b=document.createElement("button");
     b.innerText=p;
-
-    b.onclick=()=>{
-      openProjectPage(p);
-    };
-
+    b.onclick=()=>openProjectPage(p);
     tabs.appendChild(b);
   });
 
@@ -252,23 +222,20 @@ function showProjects(){
   app.appendChild(m);
 }
 
-/* 项目详情 */
+/* Projects 详情页 */
 function openProjectPage(p){
   inDetailView=true;
-
   app.innerHTML="";
   document.querySelectorAll(".back-btn").forEach(e=>e.remove());
   createBackButton();
 
   let m=createModule();
-
   let title=document.createElement("h1");
   title.innerText=p;
-
   m.appendChild(title);
   app.appendChild(m);
 
-  renderAssets(`assets/projects/${p}`,m);
+  loadFolderAssets(`assets/projects/${p}`, m);
   animateItems(m);
 }
 
@@ -280,63 +247,70 @@ function createModule(){
   return d;
 }
 
-/* 资源加载（稳定版） */
-function renderAssets(path,m){
-  m.querySelectorAll(".item").forEach(i=>i.remove());
-
-  for(let i=1;i<=20;i++){
-
-    let hasLoaded=false;
-
-    ["jpg","png","gif","mp4"].forEach(ext=>{
-      let file=`${path}/${i}.${ext}`;
-
-      // 视频
-      if(ext==="mp4"){
-        let video=document.createElement("video");
-        video.src=file;
-        video.controls=true;
-        video.muted=true;
-        video.playsInline=true;
-
-        video.onloadeddata=()=>{
-          if(hasLoaded) return;
-          hasLoaded=true;
-
+/* 核心：自动读取文件夹下资源 */
+function loadFolderAssets(folderPath, container){
+  fetch(folderPath) // 注意：本地file://打开 fetch 可能失败，需要服务器环境
+    .then(response=>response.json()) // 假设你生成了 folder JSON，或后面可改成服务器返回目录
+    .then(fileList=>{
+      fileList.forEach(file=>{
+        let ext=file.split('.').pop().toLowerCase();
+        let el;
+        if(ext==="mp4"){
+          el=document.createElement("video");
+          el.src=`${folderPath}/${file}`;
+          el.controls=true;
+          el.muted=true;
+          el.playsInline=true;
+        }else{
+          el=document.createElement("img");
+          el.src=`${folderPath}/${file}`;
+        }
+        el.onload=()=>{
           let d=document.createElement("div");
           d.className="item";
-          d.appendChild(video);
-          m.appendChild(d);
+          d.appendChild(el);
+          container.appendChild(d);
         };
-
+      });
+    })
+    .catch(()=>{
+      // 如果 fetch 不可用，就回退成固定编号方案
+      for(let i=1;i<=20;i++){
+        ["jpg","png","gif","mp4"].forEach(ext=>{
+          let el;
+          let file=`${folderPath}/${i}.${ext}`;
+          if(ext==="mp4"){
+            el=document.createElement("video");
+            el.src=file;
+            el.controls=true;
+            el.muted=true;
+            el.playsInline=true;
+            el.onloadeddata=()=>{addItem(container,el);}
+          }else{
+            el=new Image();
+            el.src=file;
+            el.onload=()=>addItem(container,el);
+          }
+        });
       }
-
-      // 图片
-      else{
-        let img=new Image();
-        img.src=file;
-
-        img.onload=()=>{
-          if(hasLoaded) return;
-          hasLoaded=true;
-
-          let d=document.createElement("div");
-          d.className="item";
-          d.appendChild(img);
-          m.appendChild(d);
-        };
-      }
-
     });
-  }
 }
 
+/* 辅助函数 */
+function addItem(container,el){
+  let d=document.createElement("div");
+  d.className="item";
+  d.appendChild(el);
+  container.appendChild(d);
+}
+
+/* 鼠标光圈互动 */
 document.addEventListener("mousemove",e=>{
   document.body.style.setProperty("--x",e.clientX+"px");
   document.body.style.setProperty("--y",e.clientY+"px");
 });
 
-/* 初始化（关键） */
+/* 初始化 */
 window.onload=()=>{
   document.getElementById("btn-lang").innerText="EN";
   document.getElementById("btn-about").innerText=text.about[lang];
