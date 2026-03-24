@@ -73,7 +73,7 @@ function renderCreations() {
         span.onclick = (e) => filterGallery(cat.tag, e.target);
         filterBar.appendChild(span);
 
-        // 自动探测加载 (1-20号)
+        // 自动探测加载 (1-100号)
         autoProbeLoad(cat.folder, cat.tag);
     });
 }
@@ -83,7 +83,7 @@ function autoProbeLoad(folder, tag) {
     const grid = document.getElementById("main-masonry");
     const exts = ["jpg", "png", "mp4"]; // 按需增加常用格式
 
-    for (let i = 1; i <= 20; i++) {
+    for (let i = 1; i <= 100; i++) {
         exts.forEach(ext => {
             const url = `${folder}/${i}.${ext}`;
             const dbKey = `${folder.replace('assets/', '')}/${i}`;
