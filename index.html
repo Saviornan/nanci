@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nancy | Portfolio</title>
+    <title>Nancy | Artist Archive</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <div class="light-bg"></div>
-    
+<body class="light-theme">
     <header>
         <div class="header-buttons">
             <button id="btn-lang">EN</button>
@@ -19,20 +17,21 @@
     <main id="app"></main>
 
     <div id="viewerLayer" class="viewer-layer">
-        <button class="viewer-close">&times;</button>
+        <button class="viewer-close">✕ CLOSE</button>
         <div class="viewer-container">
             <div class="viewer-media-box" id="viewerMedia"></div>
             <div class="viewer-info">
-                <h2 id="vTitle">Title</h2>
-                <p id="vTag" class="v-tag"></p >
+                <h2 id="vTitle"></h2>
                 <div id="vDesc" class="v-desc"></div>
                 <div class="viewer-nav">
-                    <button id="vPrev">PREV</button>
-                    <button id="vNext">NEXT</button>
+                    <button id="vPrev">← PREV</button>
+                    <button id="vNext">NEXT →</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <div id="projectLayer" class="project-detail-layer"></div>
 
     <script src="script.js"></script>
 </body>
