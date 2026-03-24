@@ -1,149 +1,153 @@
 const app = document.getElementById("app");
-const fluid = document.querySelector(".fluid-bg");
 let lang = "en";
 
-// 心得数据库：根据分类展示不同心得
-const CONTENT_MAP = {
-    "digital": { 
-        tag: "Digital Art & Design", 
-        desc: "融合了2D手绘表现与3D空间推敲，非AI生成的纯手工数字化创作。重点在于色彩节奏与造型的精准控制。" 
-    },
-    "ai": { 
-        tag: "AI Exploration", 
-        desc: "基于 MJ/SD 的实验性尝试。通过 Prompt Engineering 探索视觉的随机性与工业生产力的边界。" 
-    },
-    "projects": { 
-        tag: "Commercial Project", 
-        desc: "这是一个完整的商业化落地案例。包含了需求分析、视觉推导、动效 demo 及最终实施方案。" 
-    }
+const TEXT = {
+    welcome: { en: "WELCOME TO NANCY'S PORTFOLIO", cn: "欢迎来到楠茜的作品集" },
+    creations: { en: "CREATIONS", cn: "个人创作" },
+    projects: { en: "PROJECTS", cn: "项目展示" },
+    about: { en: "ABOUT ME", cn: "关于我" },
+    desc_digital: { en: "Handcrafted Digital Art (2D/3D)", cn: "非AI纯手工数字化创作 (2D/3D)" },
+    desc_ai: { en: "AI Exploration & Experiment", cn: "AI 生成与实验性探索" }
 };
 
-/* 鼠标环境光位移 */
-window.addEventListener("mousemove", (e) => {
-    const x = (e.clientX / window.innerWidth - 0.5) * 20;
-    const y = (e.clientY / window.innerHeight - 0.5) * 20;
-    fluid.style.transform = `translate(${x}px, ${y}px)`;
-});
+// 按钮绑定
+document.getElementById("btn-lang").onclick = () => {
+    lang = lang === "en" ? "cn" : "en";
+    document.getElementById("btn-lang").innerText = lang.toUpperCase();
+    renderHome(); // 语言切换回首页，防止逻辑错乱
+};
 
-/* 初始化主页 */
+document.getElementById("btn-about").onclick = renderAbout;
+
+/* 打字机函数 */
+function typeWriter(el, text, speed, callback) {
+    el.innerHTML = "";
+    let i = 0;
+    const timer = setInterval(() => {
+        el.innerHTML += text[i++];
+        if (i >= text.length) {
+            clearInterval(timer);
+            if (callback) callback();
+        }
+    }, speed);
+}
+
+/* 首页渲染 */
 function renderHome() {
     app.innerHTML = `
         <div class="home-screen">
-            <p class="sub">ARTIST & DESIGNER</p >
-            <div class="title-wrap"><h1>NANCY</h1></div>
-            <div class="title-wrap"><h1>PORTFOLIO</h1></div>
-            <div class="nav-links">
-                <a href=" " class="nav-link" onclick="renderGallery()">CREATIONS</a >
-                <a href="#" class="nav-link" onclick="renderProjects()">PROJECTS</a >
+            <h1 id="type-title"></h1>
+            <div class="nav-links" id="home-nav">
+                <button onclick="renderCreations()">${TEXT.creations[lang]}</button>
+                <button onclick="renderProjects()">${TEXT.projects[lang]}</button>
             </div>
         </div>
     `;
-    removeBack();
+    typeWriter(document.getElementById("type-title"), TEXT.welcome[lang], 60, () => {
+        document.getElementById("home-nav").classList.add("show");
+    });
+    removeBackBtn();
 }
 
-/* 渲染创作页：区分 Digital 与 AI */
-function renderGallery() {
+/* 个人创作页 */
+function renderCreations() {
     app.innerHTML = `
         <div class="gallery-container">
-            <button class="back-home" onclick="renderHome()">←</button>
-            <div class="section-head">
-                <h2>DIGITAL ART</h2>
-                <p style="color:#444">Handcrafted 2D & 3D Visuals</p >
-            </div>
-            <div class="masonry-grid" id="grid-digital"></div>
-
-            <div class="section-head">
-                <h2>AI EXPLORATION</h2>
-                <p style="color:#444">Prompt Engineering & Refinement</p >
-            </div>
-            <div class="masonry-grid" id="grid-ai"></div>
+            <div class="section-title">HANDCRAFTED ART</div>
+            <div class="masonry" id="masonry-digital"></div>
+            
+            <div class="section-title">AI GENERATION</div>
+            <div class="masonry" id="masonry-ai"></div>
         </div>
     `;
-    loadMasonry("creations/2d", "grid-digital", "digital");
-    loadMasonry("creations/3d", "grid-digital", "digital"); // 2D 3D 整合
-    loadMasonry("creations/ai", "grid-ai", "ai");
+    addBackBtn();
+    // 加载资源 (保留你原来的路径逻辑)
+    loadMasonry("creations/2d", "masonry-digital", TEXT.desc_digital[lang]);
+    loadMasonry("creations/3d", "masonry-digital", TEXT.desc_digital[lang]);
+    loadMasonry("creations/ai", "masonry-ai", TEXT.desc_ai[lang]);
 }
 
-/* 渲染项目页：宽幅卡片布局 */
+/* 项目展示页 (宽屏感) */
 function renderProjects() {
     app.innerHTML = `
         <div class="gallery-container">
-            <button class="back-home" onclick="renderHome()">←</button>
-            <div class="section-head">
-                <h2>CASE STUDIES</h2>
-            </div>
-            <div id="grid-projects"></div>
+            <div class="section-title">COMMERCIAL PROJECTS</div>
+            <div class="masonry" id="masonry-projects" style="column-count: 2;"></div>
         </div>
     `;
-    loadProjects("projects/projectA");
+    addBackBtn();
+    loadMasonry("projects/projectA", "masonry-projects", "Commercial Case Study");
 }
 
 /* 瀑布流加载器 */
-function loadMasonry(path, gridId, type) {
+function loadMasonry(path, gridId, tag) {
     const grid = document.getElementById(gridId);
     for (let i = 1; i <= 15; i++) {
         ["jpg", "mp4", "png"].forEach(ext => {
             const file = `assets/${path}/${i}.${ext}`;
             const isVideo = ext === "mp4";
-            const el = isVideo ? document.createElement("video") : new Image();
-            el.src = file;
-            el.onload = el.onloadedmetadata = () => {
+            const temp = isVideo ? document.createElement("video") : new Image();
+            temp.src = file;
+
+            temp.onload = temp.onloadedmetadata = () => {
                 const item = document.createElement("div");
                 item.className = "item";
-                const media = el.cloneNode();
+                const media = temp.cloneNode();
                 if(isVideo) { media.muted = true; media.loop = true; media.play(); }
                 item.appendChild(media);
                 grid.appendChild(item);
-                item.onclick = () => openViewer(file, isVideo, type, `WORK #${i}`);
+
+                item.onclick = () => openViewer(file, isVideo, tag, `Works - ${i}`);
             };
-            el.onerror = () => el.remove();
+            temp.onerror = () => temp.remove();
         });
     }
 }
 
-/* 项目加载器 */
-function loadProjects(path) {
-    const grid = document.getElementById("grid-projects");
-    const item = document.createElement("div");
-    item.className = "project-card";
-    item.innerHTML = `
-        < img src="assets/${path}/1.jpg" onerror="this.src='https://via.placeholder.com/1200x400'">
-        <div class="project-info-overlay">
-            <h3>PROJECT ALPHA</h3>
-            <p>Brand Identity & 3D Motion</p >
-        </div>
-    `;
-    item.onclick = () => openViewer(`assets/${path}/1.jpg`, false, "projects", "PROJECT ALPHA");
-    grid.appendChild(item);
-}
-
-/* 查看器：支持扩散 */
-function openViewer(src, isVideo, type, title) {
+/* 详情查看器 */
+function openViewer(src, isVideo, tag, title) {
     const layer = document.getElementById("viewerLayer");
     const mediaBox = document.getElementById("viewerMedia");
-    
     mediaBox.innerHTML = "";
     const el = isVideo ? document.createElement("video") : new Image();
     el.src = src;
-    if (isVideo) { el.controls = true; el.autoplay = true; }
+    if(isVideo) { el.controls = true; el.autoplay = true; }
     mediaBox.appendChild(el);
 
     document.getElementById("vTitle").innerText = title;
-    document.getElementById("vTag").innerText = CONTENT_MAP[type].tag;
-    document.getElementById("vDesc").innerText = CONTENT_MAP[type].desc;
+    document.getElementById("vTag").innerText = tag;
+    document.getElementById("vDesc").innerText = lang === "en" ? "Insight: Exploring the balance between aesthetic and technique." : "创作心得：在审美与技术之间寻找微妙的平衡。";
 
-    layer.style.display = "block";
-    setTimeout(() => layer.classList.add("active"), 10);
+    layer.classList.add("active");
 }
 
-document.querySelector(".viewer-close").onclick = () => {
-    const layer = document.getElementById("viewerLayer");
-    layer.classList.remove("active");
-    setTimeout(() => layer.style.display = "none", 500);
-};
+document.querySelector(".viewer-close").onclick = () => document.getElementById("viewerLayer").classList.remove("active");
 
-function removeBack() {
-    const b = document.querySelector(".back-home");
+/* 关于我 */
+function renderAbout() {
+    app.innerHTML = `
+        <div class="home-screen">
+            <div style="max-width: 600px; padding: 20px;">
+                <h1>${TEXT.about[lang]}</h1>
+                <p style="line-height: 2; color: #888;">${lang === 'cn' ? '我是楠茜，一名探索数字艺术边界的设计师。' : 'I am Nancy, a designer exploring the boundaries of digital art.'}</p >
+            </div>
+        </div>
+    `;
+    addBackBtn();
+}
+
+/* 返回按钮管理 */
+function addBackBtn() {
+    removeBackBtn();
+    const b = document.createElement("button");
+    b.className = "back-btn";
+    b.innerText = "←";
+    b.onclick = renderHome;
+    document.body.appendChild(b);
+}
+
+function removeBackBtn() {
+    const b = document.querySelector(".back-btn");
     if(b) b.remove();
 }
 
