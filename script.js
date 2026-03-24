@@ -1,188 +1,153 @@
-let app = document.getElementById("app");
-let currentPage = showHome;
-let currentCategory = null;
-let inDetailView = false;
+/* 基础配置 */
 let lang = "en";
+const app = document.getElementById("app");
+const spotlight = document.querySelector(".spotlight");
 
-/* 文本 */
-let text = {
-  home: { cn:"欢迎来到楠茜的作品集", en:"Welcome to Nancy's Portfolio" },
-  about:{ cn:"关于我", en:"About" },
-  creations:{ cn:"个人创作", en:"Creations" },
-  projects:{ cn:"项目", en:"Projects" },
-  category:{ "2d":{cn:"二维",en:"2D"}, "3d":{cn:"三维",en:"3D"}, "ai":{cn:"AI生成",en:"AI"} }
+const UI_TEXT = {
+    home: { cn: "欢迎来到楠茜的作品集", en: "Welcome to Nancy's Portfolio" },
+    creations: { cn: "个人创作", en: "Creations" },
+    projects: { cn: "项目案例", en: "Projects" },
+    about: { cn: "关于我", en: "About" }
 };
 
-/* Header 按钮 */
-document.getElementById("btn-about").onclick = () => {
-  if(currentPage === showAbout) showHome();
-  else showAbout();
-};
+/* 聚光灯：跟随鼠标 */
+window.addEventListener("mousemove", (e) => {
+    const x = (e.clientX / window.innerWidth) * 100;
+    const y = (e.clientY / window.innerHeight) * 100;
+    spotlight.style.background = `radial-gradient(circle at ${x}% ${y}%, var(--accent) 0%, transparent 50%)`;
+});
 
+/* 初始化按钮 */
 document.getElementById("btn-lang").onclick = () => {
-  lang = lang === "en" ? "cn" : "en";
-  document.getElementById("btn-lang").innerText = lang.toUpperCase();
-  document.getElementById("btn-about").innerText = text.about[lang];
-  if(currentPage) currentPage();
+    lang = lang === "en" ? "cn" : "en";
+    document.getElementById("btn-lang").innerText = lang.toUpperCase();
+    renderPage(); // 刷新当前页文字
 };
 
-/* 打字机 */
-function typeWriter(el,text,speed,callback){
-  el.innerHTML="";
-  let i=0;
-  let timer=setInterval(()=>{
-    el.innerHTML+=text[i++];
-    if(i>=text.length){ clearInterval(timer); if(callback) callback(); }
-  },speed);
+document.getElementById("btn-about").onclick = renderAbout;
+
+/* 首页渲染 */
+function renderHome() {
+    app.innerHTML = `
+        <div class="home-content">
+            <h1 id="main-title"></h1>
+            <div class="home-actions">
+                <button onclick="renderGallery('creations')">${UI_TEXT.creations[lang]}</button>
+                <button onclick="renderGallery('projects')">${UI_TEXT.projects[lang]}</button>
+            </div>
+        </div>
+    `;
+    typeWriter(document.getElementById("main-title"), UI_TEXT.home[lang], 60);
 }
 
-/* 返回按钮 */
-function createBackButton(){
-  document.querySelectorAll(".back-btn").forEach(e=>e.remove());
-  let b=document.createElement("button");
-  b.className="back-btn";
-  b.innerText="←";
-  b.onclick = () => {
-    if(currentPage===showCreations || currentPage===showProjects){
-      if(inDetailView){ currentPage(); inDetailView=false; }
-      else showHome();
-    }
-  };
-  document.body.appendChild(b);
-}
+/* 作品列表：使用你原来的循环读取逻辑 */
+function renderGallery(type) {
+    app.innerHTML = "";
+    removeBackButton();
+    addBackButton();
 
-/* 按钮扩散动画 */
-function expandFromButton(btn,callback){
-  let rect=btn.getBoundingClientRect();
-  let o=document.createElement("div");
-  o.className="expand-overlay";
-  o.style.left=rect.left+rect.width/2+"px";
-  o.style.top=rect.top+rect.height/2+"px";
-  document.body.appendChild(o);
-  setTimeout(()=>o.classList.add("active"),10);
-  setTimeout(()=>{ o.remove(); callback(); },500);
-}
+    const grid = document.createElement("div");
+    grid.className = "grid";
+    app.appendChild(grid);
 
-/* 动画 */
-function animateItems(m){
-  let items=m.querySelectorAll(".item");
-  items.forEach((el,i)=>setTimeout(()=>{ el.style.opacity="1"; el.style.transform="translateY(0)"; },i*60));
-}
+    // 假设分类路径
+    const categories = type === 'creations' ? ['2d', '3d', 'ai'] : ['projectA'];
+    
+    categories.forEach(cat => {
+        const path = `assets/${type}/${cat}`;
+        // 暴力循环加载 50 个资源
+        for (let i = 1; i <= 50; i++) {
+            ["jpg", "png", "gif", "mp4"].forEach(ext => {
+                const file = `${path}/${i}.${ext}`;
+                const isVideo = ext === "mp4";
+                const el = isVideo ? document.createElement("video") : new Image();
+                
+                el.src = file;
+                if (isVideo) { 
+                    el.muted = true; el.playsInline = true; el.loop = true; 
+                }
 
-/* 首页 */
-function showHome(){
-  currentPage = showHome;
-  app.innerHTML="";
-  document.querySelectorAll(".back-btn").forEach(e=>e.remove());
-  let m=createModule();
-  let h=document.createElement("h1");
-  let box=document.createElement("div"); box.className="home-actions";
-  let b1=document.createElement("button"); b1.innerText=text.creations[lang]; b1.onclick=(e)=>expandFromButton(e.currentTarget,showCreations);
-  let b2=document.createElement("button"); b2.innerText=text.projects[lang]; b2.onclick=(e)=>expandFromButton(e.currentTarget,showProjects);
-  box.appendChild(b1); box.appendChild(b2);
-  m.appendChild(h); m.appendChild(box); app.appendChild(m);
-  typeWriter(h,text.home[lang],60,()=>{ box.style.opacity="1"; });
-}
-
-/* Creations */
-function showCreations(){
-  currentPage = showCreations;
-  app.innerHTML="";
-  inDetailView=false;
-  createBackButton();
-  let m=createModule();
-  let tabs=document.createElement("div"); tabs.className="tabs";
-  ["2d","3d","ai"].forEach(cat=>{
-    let b=document.createElement("button"); b.innerText=text.category[cat][lang]; b.onclick=()=>openCategoryPage(cat);
-    tabs.appendChild(b);
-  });
-  m.appendChild(tabs); app.appendChild(m);
-}
-
-/* 分类页 */
-function openCategoryPage(cat){
-  currentCategory=cat; inDetailView=true;
-  app.innerHTML="";
-  createBackButton();
-  let m=createModule();
-  let title=document.createElement("h1"); title.innerText=text.category[cat][lang];
-  m.appendChild(title); app.appendChild(m);
-  renderAssets(`assets/creations/${cat}`,m);
-  animateItems(m);
-}
-
-/* About */
-function showAbout(){
-  currentPage = showAbout;
-  app.innerHTML="";
-  document.querySelectorAll(".back-btn").forEach(e=>e.remove());
-  let m=createModule();
-  let t=document.createElement("p");
-  t.innerText = lang==="cn" ? "这里是楠茜的个人介绍，可以写你的经历、风格、联系方式。" : "This is Nancy's introduction. You can write your background, style and contact here.";
-  m.appendChild(t); app.appendChild(m);
-}
-
-/* Projects */
-function showProjects(){
-  currentPage = showProjects; app.innerHTML=""; inDetailView=false;
-  createBackButton();
-  let m=createModule();
-  let tabs=document.createElement("div"); tabs.className="tabs";
-  ["projectA"].forEach(p=>{
-    let b=document.createElement("button"); b.innerText=p; b.onclick=()=>openProjectPage(p);
-    tabs.appendChild(b);
-  });
-  m.appendChild(tabs); app.appendChild(m);
-}
-
-/* 项目详情 */
-function openProjectPage(p){
-  inDetailView=true; app.innerHTML="";
-  createBackButton();
-  let m=createModule();
-  let title=document.createElement("h1"); title.innerText=p;
-  m.appendChild(title); app.appendChild(m);
-  renderAssets(`assets/projects/${p}`,m);
-  animateItems(m);
-}
-
-/* 模块 */
-function createModule(){
-  let d=document.createElement("div");
-  d.className="module";
-  setTimeout(()=>d.classList.add("show"),10);
-  return d;
-}
-
-/* 资源加载 & Lightbox */
-function renderAssets(path,m){
-  m.querySelectorAll(".item").forEach(i=>i.remove());
-  let grid=document.createElement("div"); grid.className="grid"; m.appendChild(grid);
-  for(let i=1;i<=50;i++){
-    ["jpg","png","gif","mp4"].forEach(ext=>{
-      let file=`${path}/${i}.${ext}`;
-      let el = ext==="mp4"? document.createElement("video") : new Image();
-      if(ext==="mp4"){ el.src=file; el.controls=false; el.muted=true; el.playsInline=true; }
-      else el.src=file;
-      el.onload = () => {
-        let d=document.createElement("div"); d.className="item"; d.appendChild(el); grid.appendChild(d);
-        d.onclick = () => openLightbox(el.cloneNode());
-      };
-      el.onerror=()=>el.remove();
+                el.onload = el.onloadedmetadata = () => {
+                    const d = document.createElement("div");
+                    d.className = "item";
+                    d.appendChild(el.cloneNode(true));
+                    grid.appendChild(d);
+                    
+                    // 点击打开侧滑面板
+                    d.onclick = () => openPanel(file, isVideo, cat);
+                };
+                el.onerror = () => el.remove();
+            });
+        }
     });
-  }
 }
 
-/* Lightbox */
-function openLightbox(media){
-  let overlay=document.createElement("div"); overlay.className="lightbox-overlay";
-  overlay.appendChild(media); document.body.appendChild(overlay);
-  overlay.onclick=()=>overlay.remove();
+/* 侧滑面板：展示心得记录 */
+function openPanel(src, isVideo, title) {
+    const panel = document.getElementById("sidePanel");
+    const mediaBox = document.getElementById("panelMedia");
+    
+    mediaBox.innerHTML = "";
+    const el = isVideo ? document.createElement("video") : new Image();
+    el.src = src;
+    if (isVideo) { el.controls = true; el.autoplay = true; }
+    mediaBox.appendChild(el);
+
+    document.getElementById("panelTitle").innerText = title.toUpperCase();
+    document.getElementById("panelDate").innerText = "2026 / Visual Work";
+    document.getElementById("panelDesc").innerText = lang === "cn" 
+        ? "这是我关于此作品的创作心得。在这里你可以详细描述你使用的工具（如 C4D, Midjourney, PS）、你的设计思考以及在这个项目中学到的东西。"
+        : "This is my creative insight for this work. Here you can describe in detail the tools you used (e.g. C4D, Midjourney, PS), your design thinking, and what you learned in this project.";
+
+    panel.classList.add("active");
 }
 
-/* 初始化 */
-window.onload=()=>{
-  document.getElementById("btn-lang").innerText="EN";
-  document.getElementById("btn-about").innerText=text.about[lang];
-  showHome();
+document.querySelector(".close-panel").onclick = () => {
+    document.getElementById("sidePanel").classList.remove("active");
+    document.getElementById("panelMedia").innerHTML = ""; // 停止视频播放
 };
+
+/* 关于我 */
+function renderAbout() {
+    app.innerHTML = `
+        <div style="max-width:600px; text-align:center;">
+            <h2>${UI_TEXT.about[lang]}</h2>
+            <p style="line-height:2; color:#ccc;">
+                ${lang === 'cn' ? '这里是楠茜。一个热爱探索 AI 与视觉边界的设计师。' : 'This is Nancy. A designer who loves exploring the boundaries of AI and visuals.'}
+            </p >
+        </div>
+    `;
+    addBackButton();
+}
+
+/* 通用组件 */
+function typeWriter(el, text, speed) {
+    el.innerHTML = "";
+    let i = 0;
+    let timer = setInterval(() => {
+        el.innerHTML += text[i++];
+        if (i >= text.length) clearInterval(timer);
+    }, speed);
+}
+
+function addBackButton() {
+    const b = document.createElement("button");
+    b.className = "back-btn";
+    b.innerText = "←";
+    b.onclick = renderHome;
+    document.body.appendChild(b);
+}
+
+function removeBackButton() {
+    const b = document.querySelector(".back-btn");
+    if (b) b.remove();
+}
+
+/* 页面刷新逻辑 */
+function renderPage() {
+    // 简单判断当前状态
+    if (document.querySelector(".grid")) return; 
+    renderHome();
+}
+
+window.onload = renderHome;
