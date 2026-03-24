@@ -1,29 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
-<meta charset="UTF-8">
-<title>Nancy</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nancy | Portfolio</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<canvas id="bgCanvas"></canvas>
+    <div class="spotlight"></div>
+    <canvas id="bgCanvas"></canvas>
 
-<header>
-  <div class="header-buttons">
-    <button id="btn-about">About</button>
-    <button id="btn-lang">EN</button>
-  </div>
-</header>
+    <header>
+        <div class="logo" onclick="showHome()">NANCY</div>
+        <div class="header-buttons">
+            <button id="btn-about">About</button>
+            <button id="btn-lang">EN</button>
+        </div>
+    </header>
 
-<main id="app"></main>
+    <main id="app"></main>
 
-<!-- Lightbox -->
-<div id="lightbox" class="lightbox">
-  <span id="lbClose">&times;</span>
-  < img id="lbImg" src="">
-  <video id="lbVideo" controls autoplay style="display:none;"></video>
-</div>
+    <div id="sidePanel" class="side-panel">
+        <div class="panel-content">
+            <button class="close-panel">&times;</button>
+            <div id="panelMedia" class="panel-media"></div>
+            <div class="panel-text">
+                <h2 id="panelTitle">作品标题</h2>
+                <div class="panel-meta">
+                    <span id="panelDate">2026</span>
+                    <span id="panelTag">Visual Design</span>
+                </div>
+                <hr>
+                <div id="panelDesc" class="panel-desc">这里是创作心得...</div>
+            </div>
+        </div>
+    </div>
 
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
