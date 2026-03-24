@@ -1,5 +1,6 @@
 /**
- * NANCY PORTFOLIO - GITHUB PRECISION VERSION
+ * NANCY PORTFOLIO - AUTO-LOAD VERSION (2026)
+ * 逻辑：自动扫描 1-20 号文件，无需手动修改 JSON 文件列表
  */
 
 const app = document.getElementById("app");
@@ -12,12 +13,11 @@ let typeInterval = null;
 async function init() {
     try {
         const res = await fetch('content.json');
-        if (!res.ok) throw new Error("Missing content.json");
         CONTENT_DATA = await res.json();
         setupGlobalButtons();
         renderHome();
     } catch (e) {
-        console.error("Initialization failed:", e);
+        console.error("Config load failed.");
     }
 }
 
@@ -68,33 +68,57 @@ function renderCreations() {
     filterBar.querySelector('[data-tag="all"]').onclick = (e) => filterGallery('all', e.target);
 
     CONTENT_DATA.creations.forEach(cat => {
-        // 生成标签
         const span = document.createElement('span');
         span.innerText = cat.title[lang].toUpperCase();
         span.onclick = (e) => filterGallery(cat.tag, e.target);
         filterBar.appendChild(span);
 
-        // 精准加载文件
-        if (cat.files) {
-            cat.files.forEach(fileName => {
-                const fileUrl = `${cat.folder}/${fileName}`;
-                const dbKey = `${cat.folder.replace('assets/', '')}/${fileName.split('.')[0]}`;
-                const isVid = fileName.toLowerCase().endsWith('.mp4');
-
-                const div = document.createElement("div");
-                div.className = `item ${cat.tag}`;
-                if (isVid) {
-                    div.innerHTML = `<video src="${fileUrl}" muted loop autoplay data-key="${dbKey}"></video>`;
-                } else {
-                    div.innerHTML = `< img src="${fileUrl}" data-key="${dbKey}">`;
-                }
-                div.onclick = () => openViewer(fileUrl);
-                document.getElementById("main-masonry").appendChild(div);
-            });
-        }
+        // 自动探测加载 (1-20号)
+        autoProbeLoad(cat.folder, cat.tag);
     });
 }
 
+// 自动探测函数：尝试加载所有可能的格式
+function autoProbeLoad(folder, tag) {
+    const grid = document.getElementById("main-masonry");
+    const exts = ["jpg", "png", "mp4"]; // 按需增加常用格式
+
+    for (let i = 1; i <= 20; i++) {
+        exts.forEach(ext => {
+            const url = `${folder}/${i}.${ext}`;
+            const dbKey = `${folder.replace('assets/', '')}/${i}`;
+            const isVid = ext === "mp4";
+
+            if (isVid) {
+                const v = document.createElement("video");
+                v.src = url;
+                v.onloadedmetadata = () => createItem(grid, v, url, dbKey, tag, true);
+                v.onerror = () => v.remove(); // 404 时静默移除
+            } else {
+                const img = new Image();
+                img.src = url;
+                img.onload = () => createItem(grid, img, url, dbKey, tag, false);
+                img.onerror = () => img.remove(); // 404 时静默移除
+            }
+        });
+    }
+}
+
+function createItem(grid, el, url, key, tag, isVid) {
+    // 检查是否已存在同编号（比如既有1.jpg又有1.png，只显示一个）
+    if(grid.querySelector(`[data-key="${key}"]`)) return;
+
+    const div = document.createElement("div");
+    div.className = `item ${tag}`;
+    div.innerHTML = isVid 
+        ? `<video src="${url}" muted loop autoplay data-key="${key}"></video>` 
+        : `< img src="${url}" data-key="${key}">`;
+    
+    div.onclick = () => openViewer(url);
+    grid.appendChild(div);
+}
+
+// 过滤、查看器等其余逻辑保持不变...
 function filterGallery(tag, el) {
     document.querySelectorAll('.filter-bar span').forEach(s => s.classList.remove('active'));
     el.classList.add('active');
@@ -124,7 +148,7 @@ function updateViewer() {
     const data = currentQueue[currentIndex];
     const mBox = document.getElementById("viewerMedia");
     mBox.innerHTML = data.isVid ? `<video src="${data.src}" controls autoplay></video>` : `< img src="${data.src}">`;
-    const info = (CONTENT_DATA.db && CONTENT_DATA.db[data.key]) ? CONTENT_DATA.db[data.key][lang] : { title: "Works", desc: "" };
+    const info = (CONTENT_DATA.db && CONTENT_DATA.db[data.key]) ? CONTENT_DATA.db[data.key][lang] : { title: "WORKS", desc: "" };
     document.getElementById("vTitle").innerText = info.title;
     document.getElementById("vDesc").innerText = info.desc;
 }
