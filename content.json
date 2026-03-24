@@ -6,35 +6,43 @@
     "about": {"en": "ABOUT ME", "cn": "关于我"}
   },
   "creations": [
-    {"title": {"en": "2D", "cn": "二维手绘"}, "folder": "assets/creations/2d", "tag": "2d"},
-    {"title": {"en": "3D", "cn": "三维空间"}, "folder": "assets/creations/3d", "tag": "3d"},
-    {"title": {"en": "AI", "cn": "AI生成"}, "folder": "assets/creations/ai", "tag": "ai"}
+    {
+      "title": {"en": "2D", "cn": "二维手绘"}, 
+      "folder": "assets/creations/2d", 
+      "tag": "2d",
+      "files": ["1.jpg", "2.jpg"] 
+    },
+    {
+      "title": {"en": "3D", "cn": "三维空间"}, 
+      "folder": "assets/creations/3d", 
+      "tag": "3d",
+      "files": ["1.jpg"]
+    },
+    {
+      "title": {"en": "AI", "cn": "AI生成"}, 
+      "folder": "assets/creations/ai", 
+      "tag": "ai",
+      "files": ["1.jpg", "2.mp4"]
+    }
   ],
   "projects": [
     {
-      "title": {"en": "Project Alpha", "cn": "品牌视觉升级"},
+      "title": {"en": "Project Alpha", "cn": "项目A"},
       "folder": "assets/projects/projectA",
-      "desc": {"en": "A comprehensive visual exploration...", "cn": "这是一个完整的品牌视觉推导过程..."},
-      "details": ["1.jpg", "2.jpg", "3.jpg", "video.mp4"]
+      "desc": {"en": "Description here", "cn": "这里写描述"},
+      "details": ["1.jpg", "2.jpg"]
     }
   ],
   "about": [
     {
       "media": "assets/about/profile.jpg",
-      "text": {
-        "en": "I am Nancy, a digital artist exploring the boundaries of visual harmony.",
-        "cn": "我是楠茜，一名前沿数字艺术家。致力于在审美与技术之间寻找微妙的平衡。"
-      }
+      "text": {"en": "Bio here", "cn": "个人介绍"}
     }
   ],
   "db": {
     "creations/2d/1": {
-      "cn": {"title": "黎明", "desc": "色彩练习，尝试了更随意的笔触。"},
-      "en": {"title": "Dawn", "desc": "Color study with loose brushwork."}
-    },
-    "creations/ai/1": {
-      "cn": {"title": "赛博梦境", "desc": "探讨数字秩序的实验。"},
-      "en": {"title": "Cyber Dream", "desc": "Experiment on digital order."}
+      "cn": {"title": "作品名", "desc": "作品心得"},
+      "en": {"title": "Title", "desc": "Thoughts"}
     }
   }
 }
