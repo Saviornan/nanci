@@ -7,32 +7,32 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="spotlight"></div>
-    <canvas id="bgCanvas"></canvas>
-
+    <div class="fluid-bg"></div>
+    
     <header>
-        <div class="logo" onclick="showHome()">NANCY</div>
         <div class="header-buttons">
-            <button id="btn-about">About</button>
             <button id="btn-lang">EN</button>
+            <button id="btn-about">About</button>
         </div>
     </header>
 
     <main id="app"></main>
 
-    <div id="sidePanel" class="side-panel">
-        <div class="panel-content">
-            <button class="close-panel">&times;</button>
-            <div id="panelMedia" class="panel-media"></div>
-            <div class="panel-text">
-                <h2 id="panelTitle">作品标题</h2>
-                <div class="panel-meta">
-                    <span id="panelDate">2026</span>
-                    <span id="panelTag">Visual Design</span>
+    <div id="viewerLayer" class="viewer-layer">
+        <button class="viewer-close">&times;</button>
+        <div class="viewer-container">
+            <div class="viewer-media-box">
+                <div id="viewerMedia"></div>
+                <div class="viewer-nav">
+                    <button id="vPrev">PREV</button>
+                    <button id="vNext">NEXT</button>
                 </div>
-                <hr>
-                <div id="panelDesc" class="panel-desc">这里是创作心得...</div>
             </div>
+            <div class="viewer-info">
+                <h2 id="vTitle">Project Title</h2>
+                <p id="vTag" class="v-tag">Original Work</p >
+                <div class="v-desc" id="vDesc">创作心得内容...</div>
+                <div id="vProcess" class="v-process"></div> </div>
         </div>
     </div>
 
