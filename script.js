@@ -37,11 +37,22 @@ function renderHome() {
         <div class="home-screen">
             <h1 id="home-title"></h1>
             <div class="nav-links" id="home-links">
-                <a href=" ">${CONTENT_DATA.header.creations[lang]}</a >
-                <a href="javascript:renderProjects()">${CONTENT_DATA.header.projects[lang]}</a >
+                <a href=" " id="link-creations">${CONTENT_DATA.header.creations[lang]}</a >
+                <a href="#" id="link-projects">${CONTENT_DATA.header.projects[lang]}</a >
             </div>
         </div>
     `;
+
+    // 使用更安全的事件绑定，绕过浏览器拦截
+    document.getElementById("link-creations").onclick = (e) => { 
+        e.preventDefault(); // 阻止页面刷新跳转
+        renderCreations(); 
+    };
+    document.getElementById("link-projects").onclick = (e) => { 
+        e.preventDefault(); 
+        renderProjects(); 
+    };
+
     const titleText = lang === "en" ? "NANCY'S ARCHIVE" : "楠茜的艺术存档";
     typeWriter(document.getElementById("home-title"), titleText, 80, () => {
         document.getElementById("home-links").classList.add("active");
@@ -60,17 +71,22 @@ function renderCreations() {
         </div>
     `;
     
-    // 动态生成过滤标签
     const filterBar = document.getElementById("filter-bar");
-    CONTENT_DATA.creations.forEach(cat => {
-        const span = document.createElement('span');
-        span.innerText = cat.title[lang].toUpperCase();
-        span.onclick = (e) => filterGallery(cat.tag, e.target);
-        filterBar.appendChild(span);
-        
-        // 加载该分类下的作品
-        loadMixItems(cat.folder, cat.tag);
-    });
+    
+    // 增加数据保护：如果 content.json 里不小心删掉了 creations，也不会白屏
+    if (CONTENT_DATA.creations && Array.isArray(CONTENT_DATA.creations)) {
+        CONTENT_DATA.creations.forEach(cat => {
+            const span = document.createElement('span');
+            span.innerText = cat.title[lang].toUpperCase();
+            span.onclick = (e) => filterGallery(cat.tag, e.target);
+            filterBar.appendChild(span);
+            
+            // 加载该分类下的作品
+            loadMixItems(cat.folder, cat.tag);
+        });
+    } else {
+        console.error("读取作品数据失败，请检查 content.json 中是否正确包含 creations 数组！");
+    }
 }
 
 // 核心加载器（自动过滤失效路径）
