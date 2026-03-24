@@ -6,43 +6,28 @@
     "about": {"en": "ABOUT ME", "cn": "关于我"}
   },
   "creations": [
-    {
-      "title": {"en": "2D", "cn": "二维手绘"}, 
-      "folder": "assets/creations/2d", 
-      "tag": "2d",
-      "files": ["1.jpg", "2.jpg"] 
-    },
-    {
-      "title": {"en": "3D", "cn": "三维空间"}, 
-      "folder": "assets/creations/3d", 
-      "tag": "3d",
-      "files": ["1.jpg"]
-    },
-    {
-      "title": {"en": "AI", "cn": "AI生成"}, 
-      "folder": "assets/creations/ai", 
-      "tag": "ai",
-      "files": ["1.jpg", "2.mp4"]
-    }
+    {"title": {"en": "2D", "cn": "二维"}, "folder": "assets/creations/2d", "tag": "2d"},
+    {"title": {"en": "3D", "cn": "三维"}, "folder": "assets/creations/3d", "tag": "3d"},
+    {"title": {"en": "AI", "cn": "AI生成"}, "folder": "assets/creations/ai", "tag": "ai"}
   ],
   "projects": [
     {
       "title": {"en": "Project Alpha", "cn": "项目A"},
       "folder": "assets/projects/projectA",
-      "desc": {"en": "Description here", "cn": "这里写描述"},
+      "desc": {"en": "Desc", "cn": "项目描述"},
       "details": ["1.jpg", "2.jpg"]
     }
   ],
   "about": [
     {
       "media": "assets/about/profile.jpg",
-      "text": {"en": "Bio here", "cn": "个人介绍"}
+      "text": {"en": "Bio", "cn": "简介"}
     }
   ],
   "db": {
     "creations/2d/1": {
-      "cn": {"title": "作品名", "desc": "作品心得"},
-      "en": {"title": "Title", "desc": "Thoughts"}
+      "cn": {"title": "作品名", "desc": "在这里写具体的心得"},
+      "en": {"title": "Title", "desc": "Thoughts here"}
     }
   }
 }
