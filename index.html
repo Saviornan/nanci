@@ -1656,33 +1656,23 @@ const WORKS_HEIGHTS = [320, 220, 260, 240, 300, 220, 280, 340, 250, 310];
 const WORKS_ASSET_VERSION = 'works-auto-v2';
 let worksInitialized = false;
 
-function withTimeout(promise, ms = 3500) {
+function withTimeout(promise, ms = 5000) {
   return Promise.race([
     promise,
     new Promise(resolve => setTimeout(() => resolve(false), ms))
   ]);
 }
 
-function imageExists(url) {
-  return withTimeout(new Promise(resolve => {
-    const img = new Image();
-    img.onload = () => resolve(true);
-    img.onerror = () => resolve(false);
-    img.src = `${url}?v=${WORKS_ASSET_VERSION}`;
-  }));
+// 用 fetch HEAD 代替 Image/Video 元素探测，避免创建大量 DOM 元素占满连接池
+function assetExists(url) {
+  return withTimeout(fetch(`${url}?v=${WORKS_ASSET_VERSION}`, {
+    method: 'HEAD',
+    cache: 'no-cache'
+  }).then(r => r.ok).catch(() => false), 5000);
 }
 
-function videoExists(url) {
-  return withTimeout(new Promise(resolve => {
-    const v = document.createElement('video');
-    v.preload = 'metadata';
-    v.muted = true;
-    v.playsInline = true;
-    v.onloadedmetadata = () => resolve(true);
-    v.onerror = () => resolve(false);
-    v.src = `${url}?v=${WORKS_ASSET_VERSION}`;
-  }));
-}
+function imageExists(url) { return assetExists(url); }
+function videoExists(url) { return assetExists(url); }
 
 function padWorkIndex(n) {
   return String(n).padStart(2, '0');
@@ -1710,31 +1700,47 @@ function buildWorksEmpty() {
 }
 
 async function scanWorksAssets() {
-  const checks = [];
+  const allChecks = [];
   for (const cfg of WORKS_CONFIG) {
     for (let i = 1; i <= WORKS_MAX_INDEX; i++) {
       const num = padWorkIndex(i);
       for (const ext of WORKS_IMAGE_EXTS) {
         const src = `./assets/works/${cfg.dir}/${num}.${ext}`;
-        checks.push(imageExists(src).then(ok => ok ? { ...cfg, num, src, type:'image' } : null));
+        allChecks.push({ cfg, num, src, type:'image' });
       }
       for (const ext of WORKS_VIDEO_EXTS) {
         const src = `./assets/works/${cfg.dir}/${num}.${ext}`;
-        checks.push(videoExists(src).then(ok => ok ? { ...cfg, num, src, type:'video' } : null));
+        allChecks.push({ cfg, num, src, type:'video' });
       }
     }
   }
-  const results = await Promise.all(checks);
-  return results.filter(Boolean);
+  // 分批探测，每批 20 个，避免占满浏览器连接池
+  const BATCH = 20;
+  const found = [];
+  for (let i = 0; i < allChecks.length; i += BATCH) {
+    const batch = allChecks.slice(i, i + BATCH);
+    const results = await Promise.allSettled(
+      batch.map(c => assetExists(c.src).then(ok => ok ? c : null))
+    );
+    results.forEach(r => {
+      if (r.status === 'fulfilled' && r.value) found.push(r.value);
+    });
+  }
+  return found;
 }
-
 async function initWorksWhenReady() {
   if (worksInitialized) return;
   worksInitialized = true;
   const grid = document.getElementById('worksMasonry');
   if (!grid) return;
-  const works = await scanWorksAssets();
-  grid.innerHTML = works.length ? works.map(buildWorkCard).join('') : buildWorksEmpty();
+  try {
+    const works = await scanWorksAssets();
+    grid.innerHTML = works.length ? works.map(buildWorkCard).join('') : buildWorksEmpty();
+  } catch (e) {
+    console.error('Works scan failed:', e);
+    worksInitialized = false;
+    grid.innerHTML = buildWorksEmpty();
+  }
 }
 
 /* ═══ PROJECT ASSET AUTO RESOLVER ═══ */
@@ -1777,15 +1783,18 @@ async function resolveProjectAssets() {
   if (projectAssetsResolved) return;
   projectAssetsResolved = true;
   const tasks = PROJECTS.map(async (p, idx) => {
-    const projectNo = padWorkIndex(idx + 1);
-    // 保留外站嵌入（B站/YouTube），剔除本地探测出来的旧 image/video 项，避免重复
-    const externalMedia = (p.gallery || []).filter(m => m.type !== 'image' && m.type !== 'video');
-    const localMedia = await scanProjectMedia(projectNo);
-    if (localMedia.length) p.gallery = [...externalMedia, ...localMedia];
-    const cover = await firstExistingMedia(`./assets/projects/${projectNo}/cover`);
-    if (cover) p.cover = { type:cover.type, src:`${cover.src}?v=${WORKS_ASSET_VERSION}` };
+    try {
+      const projectNo = padWorkIndex(idx + 1);
+      const externalMedia = (p.gallery || []).filter(m => m.type !== 'image' && m.type !== 'video');
+      const localMedia = await scanProjectMedia(projectNo);
+      if (localMedia.length) p.gallery = [...externalMedia, ...localMedia];
+      const cover = await firstExistingMedia(`./assets/projects/${projectNo}/cover`);
+      if (cover) p.cover = { type:cover.type, src:`${cover.src}?v=${WORKS_ASSET_VERSION}` };
+    } catch(e) {
+      console.error(`Project ${idx} asset scan failed:`, e);
+    }
   });
-  await Promise.all(tasks);
+  await Promise.allSettled(tasks);
 }
 
 /* ═══ MODAL DATA ═══ */
@@ -2142,7 +2151,10 @@ let carouselsInitialized = false;
 function initCarouselsWhenReady() {
   if (carouselsInitialized) return;
   carouselsInitialized = true;
-  initCarousels().catch(() => {});
+  initCarousels().catch(e => {
+    console.error('Carousel init failed:', e);
+    carouselsInitialized = false;
+  });
 }
 
 document.querySelectorAll('.proj-card').forEach(card => {
