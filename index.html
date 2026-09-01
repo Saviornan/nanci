@@ -1794,22 +1794,25 @@ async function scanProjectMedia(projectNo) {
   return found;
 }
 
+let projectAssetsPromise = null;
 async function resolveProjectAssets() {
-  if (projectAssetsResolved) return;
-  projectAssetsResolved = true;
-  const tasks = PROJECTS.map(async (p, idx) => {
-    try {
-      const projectNo = padWorkIndex(idx + 1);
-      const externalMedia = (p.gallery || []).filter(m => m.type !== 'image' && m.type !== 'video');
-      const localMedia = await scanProjectMedia(projectNo);
-      if (localMedia.length) p.gallery = [...externalMedia, ...localMedia];
-      const cover = await firstExistingMedia(`./assets/projects/${projectNo}/cover`);
-      if (cover) p.cover = { type:cover.type, src:`${cover.src}?v=${WORKS_ASSET_VERSION}` };
-    } catch(e) {
-      console.error(`Project ${idx} asset scan failed:`, e);
-    }
-  });
-  await Promise.allSettled(tasks);
+  if (projectAssetsPromise) return projectAssetsPromise;
+  projectAssetsPromise = (async () => {
+    const tasks = PROJECTS.map(async (p, idx) => {
+      try {
+        const projectNo = padWorkIndex(idx + 1);
+        const cover = await firstExistingMedia(`./assets/projects/${projectNo}/cover`);
+        if (cover) p.cover = { type:cover.type, src:`${cover.src}?v=${WORKS_ASSET_VERSION}` };
+        const externalMedia = (p.gallery || []).filter(m => m.type !== 'image' && m.type !== 'video');
+        const localMedia = await scanProjectMedia(projectNo);
+        if (localMedia.length) p.gallery = [...externalMedia, ...localMedia];
+      } catch(e) {
+        console.error(`Project ${idx} asset scan failed:`, e);
+      }
+    });
+    await Promise.allSettled(tasks);
+  })();
+  return projectAssetsPromise;
 }
 
 /* ═══ MODAL DATA ═══ */
@@ -2104,9 +2107,6 @@ async function initCarousels() {
       return;
     }
   });
-
-  // Phase 3: 后台扫描画廊素材（供弹窗使用，不阻塞封面显示）
-  resolveProjectAssets().catch(() => {});
 }
 
 function goToSlide(card, slideIdx) {
