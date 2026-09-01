@@ -1761,20 +1761,35 @@ async function firstExistingMedia(basePath) {
 }
 
 async function scanProjectMedia(projectNo) {
-  const found = [];
-  const seen = new Set();
+  const allChecks = [];
   for (let i = 1; i <= WORKS_MAX_INDEX; i++) {
     const candidates = [
       `./assets/projects/${projectNo}/shot${i}`,
       `./assets/projects/${projectNo}/${padWorkIndex(i)}`
     ];
     for (const base of candidates) {
-      const m = await firstExistingMedia(base);
-      if (m && !seen.has(m.src)) {
-        seen.add(m.src);
-        found.push({ type:m.type, src:`${m.src}?v=${WORKS_ASSET_VERSION}` });
+      for (const ext of WORKS_IMAGE_EXTS) {
+        allChecks.push({ src: `${base}.${ext}`, type: 'image' });
+      }
+      for (const ext of WORKS_VIDEO_EXTS) {
+        allChecks.push({ src: `${base}.${ext}`, type: 'video' });
       }
     }
+  }
+  const BATCH = 20;
+  const found = [];
+  const seen = new Set();
+  for (let i = 0; i < allChecks.length; i += BATCH) {
+    const batch = allChecks.slice(i, i + BATCH);
+    const results = await Promise.allSettled(
+      batch.map(c => assetExists(c.src).then(ok => ok ? c : null))
+    );
+    results.forEach(r => {
+      if (r.status === 'fulfilled' && r.value && !seen.has(r.value.src)) {
+        seen.add(r.value.src);
+        found.push({ type: r.value.type, src: `${r.value.src}?v=${WORKS_ASSET_VERSION}` });
+      }
+    });
   }
   return found;
 }
@@ -2046,7 +2061,17 @@ function updateModalCarousel() {
 const carouselIntervals = {};
 
 async function initCarousels() {
-  await resolveProjectAssets();
+  // Phase 1: 快速检测封面（每个项目仅 6 次请求，5 个项目并行）
+  const coverTasks = PROJECTS.map(async (p, idx) => {
+    try {
+      const projectNo = padWorkIndex(idx + 1);
+      const cover = await firstExistingMedia(`./assets/projects/${projectNo}/cover`);
+      if (cover) p.cover = { type:cover.type, src:`${cover.src}?v=${WORKS_ASSET_VERSION}` };
+    } catch(e) {}
+  });
+  await Promise.allSettled(coverTasks);
+
+  // Phase 2: 立即显示封面
   document.querySelectorAll('.proj-card').forEach(card => {
     const idx = +card.dataset.idx;
     const p = PROJECTS[idx];
@@ -2054,13 +2079,10 @@ async function initCarousels() {
     if (!thumb) return;
 
     const gallery = p.gallery || [];
-    // Find first video in gallery for card cover — prefer Bilibili for autoplay stability
     const coverVideo = gallery.find(m => m.type === 'bilibili') || gallery.find(m => m.type === 'youtube');
-    const images = gallery.filter(m => m.type === 'image');
     const coverImage = p.cover && p.cover.type === 'image' ? p.cover : null;
     const coverLocalVideo = p.cover && p.cover.type === 'video' ? p.cover : null;
 
-    // If has external embed video, embed auto-playing iframe (muted)
     if (coverVideo) {
       let videoHTML = '';
       if (coverVideo.type === 'youtube') {
@@ -2072,53 +2094,19 @@ async function initCarousels() {
       return;
     }
 
-    // Local video cover (e.g. cover.mp4)
     if (coverLocalVideo && coverLocalVideo.src) {
       thumb.innerHTML = `<div style="width:100%;height:100%;position:relative;overflow:hidden;background:var(--surface);"><video src="${coverLocalVideo.src}" muted loop autoplay playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"></video></div>`;
       return;
     }
 
-    // Otherwise, use cover image first
     if (coverImage && coverImage.src) {
       thumb.innerHTML = `<div style="width:100%;height:100%;position:relative;overflow:hidden;background:var(--surface);"><img src="${coverImage.src}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div class=&quot;proj-thumb-ph&quot;><svg width=&quot;32&quot; height=&quot;32&quot; viewBox=&quot;0 0 32 32&quot; fill=&quot;none&quot; stroke=&quot;rgba(180,160,216,0.3)&quot; stroke-width=&quot;1&quot;><rect x=&quot;4&quot; y=&quot;4&quot; width=&quot;24&quot; height=&quot;24&quot; rx=&quot;4&quot;/><path d=&quot;M4 16h24M16 4v24&quot;/></svg><span style=&quot;margin-top:4px;font-size:8px&quot;><span class=&quot;cn&quot;>封面待上传</span><span class=&quot;en&quot;>Cover Pending</span></span></div>'"></div>`;
       return;
     }
-
-    // If no cover image, build image carousel from gallery
-    if (images.length <= 1) return; // Keep original placeholder HTML
-
-    let slidesHTML = '';
-    images.forEach((m, i) => {
-      if (m.src) {
-        slidesHTML += `<div class="proj-carousel-slide"><img src="${m.src}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<div class=&quot;proj-thumb-ph&quot;><svg width=&quot;32&quot; height=&quot;32&quot; viewBox=&quot;0 0 32 32&quot; fill=&quot;none&quot; stroke=&quot;rgba(180,160,216,0.3)&quot; stroke-width=&quot;1&quot;><rect x=&quot;4&quot; y=&quot;4&quot; width=&quot;24&quot; height=&quot;24&quot; rx=&quot;4&quot;/><path d=&quot;M4 16h24M16 4v24&quot;/></svg><span style=&quot;margin-top:4px;font-size:8px&quot;><span class=&quot;cn&quot;>图片待上传</span><span class=&quot;en&quot;>Image Pending</span></span></div>'"></div>`;
-      } else {
-        slidesHTML += `<div class="proj-carousel-slide"><div class="proj-thumb-ph"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="rgba(180,160,216,0.3)" stroke-width="1"><rect x="4" y="4" width="24" height="24" rx="4"/><path d="M4 16h24M16 4v24"/></svg><span style="margin-top:4px;font-size:8px"><span class="cn">图片</span><span class="en">Image</span></span></div></div>`;
-      }
-    });
-
-    let dotsHTML = '<div class="proj-carousel-dots">';
-    images.forEach((_, i) => {
-      dotsHTML += `<button class="proj-carousel-dot${i===0?' active':''}" data-slide="${i}"></button>`;
-    });
-    dotsHTML += '</div>';
-
-    thumb.innerHTML = `
-      <div class="proj-carousel">
-        <div class="proj-carousel-track">${slidesHTML}</div>
-        ${dotsHTML}
-      </div>
-    `;
-
-    thumb.querySelectorAll('.proj-carousel-dot').forEach(dot => {
-      dot.addEventListener('click', e => {
-        e.stopPropagation();
-        goToSlide(card, +dot.dataset.slide);
-        resetAutoplay(card, idx);
-      });
-    });
-
-    startAutoplay(card, idx, images.length);
   });
+
+  // Phase 3: 后台扫描画廊素材（供弹窗使用，不阻塞封面显示）
+  resolveProjectAssets().catch(() => {});
 }
 
 function goToSlide(card, slideIdx) {
