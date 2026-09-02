@@ -1720,35 +1720,34 @@ function buildWorksEmpty() {
   </div>`;
 }
 
+let ASSET_MANIFEST = null;
+async function loadManifest() {
+  if (ASSET_MANIFEST) return ASSET_MANIFEST;
+  try {
+    const r = await fetch('./assets/manifest.json', { cache: 'no-cache' });
+    ASSET_MANIFEST = await r.json();
+  } catch(e) {
+    console.error('Manifest load failed:', e);
+    ASSET_MANIFEST = { works: {}, projects: {} };
+  }
+  return ASSET_MANIFEST;
+}
+
 async function scanWorksAssets() {
-  const allChecks = [];
+  const m = await loadManifest();
+  const works = [];
   for (const cfg of WORKS_CONFIG) {
-    for (let i = 1; i <= WORKS_MAX_INDEX; i++) {
-      const num = padWorkIndex(i);
-      for (const ext of WORKS_IMAGE_EXTS) {
-        const src = `./assets/works/${cfg.dir}/${num}.${ext}`;
-        allChecks.push({ ...cfg, num, src, type:'image' });
-      }
-      for (const ext of WORKS_VIDEO_EXTS) {
-        const src = `./assets/works/${cfg.dir}/${num}.${ext}`;
-        allChecks.push({ ...cfg, num, src, type:'video' });
-      }
+    const files = m.works[cfg.dir] || [];
+    for (const file of files) {
+      const num = file.replace(/\.\w+$/, '');
+      const ext = file.split('.').pop().toLowerCase();
+      const isVideo = ['mp4','mov','webm'].includes(ext);
+      works.push({ ...cfg, num, src:`./assets/works/${cfg.dir}/${file}`, type: isVideo ? 'video' : 'image' });
     }
   }
-  // 分批探测，每批 20 个，避免占满浏览器连接池
-  const BATCH = 20;
-  const found = [];
-  for (let i = 0; i < allChecks.length; i += BATCH) {
-    const batch = allChecks.slice(i, i + BATCH);
-    const results = await Promise.allSettled(
-      batch.map(c => assetExists(c.src).then(ok => ok ? c : null))
-    );
-    results.forEach(r => {
-      if (r.status === 'fulfilled' && r.value) found.push(r.value);
-    });
-  }
-  return found;
+  return works;
 }
+   
 let scannedWorks = [];
 async function initWorksWhenReady() {
   if (worksInitialized) return;
@@ -1841,23 +1840,31 @@ let projectAssetsPromise = null;
 async function resolveProjectAssets() {
   if (projectAssetsPromise) return projectAssetsPromise;
   projectAssetsPromise = (async () => {
-    const tasks = PROJECTS.map(async (p, idx) => {
+    const m = await loadManifest();
+    PROJECTS.forEach((p, idx) => {
       try {
         const projectNo = padWorkIndex(idx + 1);
-        const cover = await firstExistingMedia(`./assets/projects/${projectNo}/cover`);
-        if (cover) p.cover = { type:cover.type, src:`${cover.src}?v=${WORKS_ASSET_VERSION}` };
-        const externalMedia = (p.gallery || []).filter(m => m.type !== 'image' && m.type !== 'video');
-        const localMedia = await scanProjectMedia(projectNo);
-        if (localMedia.length) p.gallery = [...externalMedia, ...localMedia];
+        const pd = m.projects[projectNo] || {};
+        if (pd.cover) {
+          const ext = pd.cover.split('.').pop().toLowerCase();
+          const isVideo = ['mp4','mov','webm'].includes(ext);
+          p.cover = { type: isVideo ? 'video' : 'image', src: `./assets/projects/${projectNo}/${pd.cover}?v=${WORKS_ASSET_VERSION}` };
+        }
+        const externalMedia = (p.gallery || []).filter(item => item.type !== 'image' && item.type !== 'video');
+        const localShots = (pd.shots || []).map(file => {
+          const ext = file.split('.').pop().toLowerCase();
+          const isVideo = ['mp4','mov','webm'].includes(ext);
+          return { type: isVideo ? 'video' : 'image', src: `./assets/projects/${projectNo}/${file}?v=${WORKS_ASSET_VERSION}` };
+        });
+        if (localShots.length) p.gallery = [...externalMedia, ...localShots];
       } catch(e) {
-        console.error(`Project ${idx} asset scan failed:`, e);
+        console.error(`Project ${idx} manifest setup failed:`, e);
       }
     });
-    await Promise.allSettled(tasks);
   })();
   return projectAssetsPromise;
 }
-
+   
 /* ═══ MODAL DATA ═══ */
 const PROJECTS = [
   {
@@ -2107,16 +2114,18 @@ function updateModalCarousel() {
 const carouselIntervals = {};
 
 async function initCarousels() {
-  // Phase 1: 快速检测封面（每个项目仅 6 次请求，5 个项目并行）
-  const coverTasks = PROJECTS.map(async (p, idx) => {
-    try {
-      const projectNo = padWorkIndex(idx + 1);
-      const cover = await firstExistingMedia(`./assets/projects/${projectNo}/cover`);
-      if (cover) p.cover = { type:cover.type, src:`${cover.src}?v=${WORKS_ASSET_VERSION}` };
-    } catch(e) {}
+  // Phase 1: 从清单获取封面
+  const manifest = await loadManifest();
+  PROJECTS.forEach((p, idx) => {
+    const projectNo = padWorkIndex(idx + 1);
+    const pd = manifest.projects[projectNo] || {};
+    if (pd.cover) {
+      const ext = pd.cover.split('.').pop().toLowerCase();
+      const isVideo = ['mp4','mov','webm'].includes(ext);
+      p.cover = { type: isVideo ? 'video' : 'image', src: `./assets/projects/${projectNo}/${pd.cover}?v=${WORKS_ASSET_VERSION}` };
+    }
   });
-  await Promise.allSettled(coverTasks);
-
+   
   // Phase 2: 立即显示封面
   document.querySelectorAll('.proj-card').forEach(card => {
     const idx = +card.dataset.idx;
