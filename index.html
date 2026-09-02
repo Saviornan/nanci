@@ -1242,6 +1242,22 @@ body {
   color: var(--white);
 }
 
+  .work-viewer-overlay {
+  position: fixed; inset: 0; z-index: 250;
+  background: rgba(10,10,10,0.92); backdrop-filter: blur(16px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.4s;
+}
+.work-viewer-overlay.open { opacity: 1; pointer-events: all; }
+.work-viewer-media { display: flex; align-items: center; justify-content: center; }
+.work-viewer-media video, .work-viewer-media img { box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
+.work-viewer-close {
+  position: absolute; top: 20px; right: 24px;
+  background: none; border: none; color: var(--white-dim);
+  font-size: 28px; cursor: pointer; z-index: 10;
+}
+.work-viewer-close:hover { color: var(--white); } 
+
 /* ═══════════════════════════════════════
    SCROLL FADE IN
    ═══════════════════════════════════════ */
@@ -1457,7 +1473,7 @@ body {
             <span class="tag ttype"><span class="cn">公司项目</span><span class="en">Company</span></span>
           </div>
           <div class="proj-title"><span class="cn">PIKU</span><span class="en">PIKU</span></div>
-          <div class="proj-subtitle"><span class="cn">小红书运营 · 原创IP</span><span class="en">Xiaohongshu · Original IP</span></div>
+          <div class="proj-subtitle"><span class="cn">动画师 · 原创IP</span><span class="en">Animator · Original IP</span></div>
           <div class="proj-desc"><span class="cn">原创IP项目，负责动画项目的Layout绘制和盲盒形象相关AI素材生成。</span><span class="en">Original IP project. Responsible for animation layout drawing and AI-generated assets for blind box character designs.</span></div>
         </div>
       </div>
@@ -1549,6 +1565,11 @@ body {
   </div>
 </div>
 
+   <div class="work-viewer-overlay" id="workViewerOverlay" onclick="closeWorkViewer(event)">
+  <button class="work-viewer-close" onclick="closeWorkViewer()">✕</button>
+  <div class="work-viewer-media"></div>
+</div>
+   
 <!-- ═══ PROJECT MODAL ═══ -->
 <div class="modal-bg" id="modalBg">
   <div class="modal" id="modal">
@@ -1651,7 +1672,7 @@ const WORKS_CONFIG = [
 ];
 const WORKS_IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
 const WORKS_VIDEO_EXTS = ['mp4'];
-const WORKS_MAX_INDEX = 20;
+const WORKS_MAX_INDEX = 10;
 const WORKS_HEIGHTS = [320, 220, 260, 240, 300, 220, 280, 340, 250, 310];
 const WORKS_ASSET_VERSION = 'works-auto-v2';
 let worksInitialized = false;
@@ -1706,11 +1727,11 @@ async function scanWorksAssets() {
       const num = padWorkIndex(i);
       for (const ext of WORKS_IMAGE_EXTS) {
         const src = `./assets/works/${cfg.dir}/${num}.${ext}`;
-        allChecks.push({ cfg, num, src, type:'image' });
+        allChecks.push({ { cfg, num,  →  { ...cfg, num,cfg, num, src, type:'image' });
       }
       for (const ext of WORKS_VIDEO_EXTS) {
         const src = `./assets/works/${cfg.dir}/${num}.${ext}`;
-        allChecks.push({ cfg, num, src, type:'video' });
+        allChecks.push({ { cfg, num,  →  { ...cfg, num,cfg, num, src, type:'video' });
       }
     }
   }
@@ -1728,14 +1749,18 @@ async function scanWorksAssets() {
   }
   return found;
 }
+let scannedWorks = [];
 async function initWorksWhenReady() {
   if (worksInitialized) return;
   worksInitialized = true;
   const grid = document.getElementById('worksMasonry');
   if (!grid) return;
   try {
-    const works = await scanWorksAssets();
-    grid.innerHTML = works.length ? works.map(buildWorkCard).join('') : buildWorksEmpty();
+    scannedWorks = await scanWorksAssets();
+    grid.innerHTML = scannedWorks.length ? scannedWorks.map(buildWorkCard).join('') : buildWorksEmpty();
+    grid.querySelectorAll('.masonry-item[data-auto-work]').forEach(item => {
+      item.addEventListener('click', () => openWorkViewer(+item.dataset.autoWork));
+    });
   } catch (e) {
     console.error('Works scan failed:', e);
     worksInitialized = false;
@@ -1743,8 +1768,26 @@ async function initWorksWhenReady() {
   }
 }
 
+function openWorkViewer(idx) {
+  const item = scannedWorks[idx];
+  if (!item) return;
+  const overlay = document.getElementById('workViewerOverlay');
+  if (!overlay) return;
+  const c = overlay.querySelector('.work-viewer-media');
+  c.innerHTML = item.type === 'video'
+    ? `<video src="${item.src}?v=${WORKS_ASSET_VERSION}" controls autoplay loop playsinline style="max-width:90vw;max-height:80vh;border-radius:8px;"></video>`
+    : `<img src="${item.src}?v=${WORKS_ASSET_VERSION}" style="max-width:90vw;max-height:80vh;border-radius:8px;object-fit:contain;">`;
+  overlay.classList.add('open');
+}
+function closeWorkViewer(e) {
+  if (e && e.target !== e.currentTarget && !e.target.closest('.work-viewer-close')) return;
+  const overlay = document.getElementById('workViewerOverlay');
+  if (!overlay) return;
+  overlay.classList.remove('open');
+  overlay.querySelector('.work-viewer-media').innerHTML = '';
+}
+
 /* ═══ PROJECT ASSET AUTO RESOLVER ═══ */
-let projectAssetsResolved = false;
 
 async function firstExistingMedia(basePath) {
   // 先试图片
@@ -1909,7 +1952,7 @@ const PROJECTS = [
   },
   {
     titleZh:'PIKU', titleEn:'PIKU',
-    subZh:'小红书运营 · 原创IP', subEn:'Xiaohongshu · Original IP',
+    subZh:'动画师 · 原创IP', subEn:'Animator · Original IP',
     tags:['t2d:2D · 原创IP','trole:岗位：Layout/AI设计/Role: Layout/AI Design','ttype:公司项目/Company'],
     descZh:'原创IP项目，负责动画项目的Layout绘制和盲盒形象相关AI素材生成。',
     descEn:'Original IP project. Responsible for animation layout drawing and AI-generated assets for blind box character designs.',
@@ -2107,6 +2150,9 @@ async function initCarousels() {
       return;
     }
   });
+   
+  // Phase 3: 后台扫描画廊素材（供弹窗使用）
+  resolveProjectAssets().catch(() => {});
 }
 
 function goToSlide(card, slideIdx) {
@@ -2161,7 +2207,10 @@ document.addEventListener('keydown', e => {
   if(e.key === 'Escape'){
     closeModal();
     closeAbout();
+    closeModal();
+    closeAbout();
     closeContact();
+    closeWorkViewer();
   }
 });
 
