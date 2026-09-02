@@ -1727,11 +1727,11 @@ async function scanWorksAssets() {
       const num = padWorkIndex(i);
       for (const ext of WORKS_IMAGE_EXTS) {
         const src = `./assets/works/${cfg.dir}/${num}.${ext}`;
-        allChecks.push({ { cfg, num,  →  { ...cfg, num,cfg, num, src, type:'image' });
+        allChecks.push({ ...cfg, num, src, type:'image' });
       }
       for (const ext of WORKS_VIDEO_EXTS) {
         const src = `./assets/works/${cfg.dir}/${num}.${ext}`;
-        allChecks.push({ { cfg, num,  →  { ...cfg, num,cfg, num, src, type:'video' });
+        allChecks.push({ ...cfg, num, src, type:'video' });
       }
     }
   }
@@ -2204,9 +2204,7 @@ function closeModal(){
 document.getElementById('modalClose').addEventListener('click', closeModal);
 document.getElementById('modalBg').addEventListener('click', e => { if(e.target === document.getElementById('modalBg')) closeModal(); });
 document.addEventListener('keydown', e => {
-  if(e.key === 'Escape'){
-    closeModal();
-    closeAbout();
+   if(e.key === 'Escape'){
     closeModal();
     closeAbout();
     closeContact();
