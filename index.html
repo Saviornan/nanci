@@ -2157,7 +2157,6 @@ async function initCarousels() {
       thumb.innerHTML = `<div style="width:100%;height:100%;position:relative;overflow:hidden;background:var(--surface);"><video src="${coverLocalVideo.src}#t=0.1" muted loop autoplay playsinline preload="auto" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"></video></div>`;
       return;
     }
-    }
 
     if (coverImage && coverImage.src) {
       thumb.innerHTML = `<div style="width:100%;height:100%;position:relative;overflow:hidden;background:var(--surface);"><img src="${coverImage.src}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div class=&quot;proj-thumb-ph&quot;><svg width=&quot;32&quot; height=&quot;32&quot; viewBox=&quot;0 0 32 32&quot; fill=&quot;none&quot; stroke=&quot;rgba(180,160,216,0.3)&quot; stroke-width=&quot;1&quot;><rect x=&quot;4&quot; y=&quot;4&quot; width=&quot;24&quot; height=&quot;24&quot; rx=&quot;4&quot;/><path d=&quot;M4 16h24M16 4v24&quot;/></svg><span style=&quot;margin-top:4px;font-size:8px&quot;><span class=&quot;cn&quot;>封面待上传</span><span class=&quot;en&quot;>Cover Pending</span></span></div>'"></div>`;
