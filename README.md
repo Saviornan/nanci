@@ -96,3 +96,23 @@ assets/works/motion/01.mp4
 - `shot1`、`shot2`...：弹窗轮播中展示的截图，默认自动检测到 `shot20`
 - 项目图片支持：`.jpg`、`.jpeg`、`.png`、`.webp`、`.gif`
 - 也支持 `01.jpg`、`02.png` 这种编号命名作为截图补充
+
+
+## 作品更新步骤
+
+### 新增个人作品
+1. 文件放到 `assets/works/对应分类/` 下（2d / 3d / ai / motion）
+2. 文件名：两位数序号.扩展名（如 `07.jpg`、`05.mp4`）
+3. 打开 `assets/manifest.json`，在对应分类数组里加上文件名
+4. 保存上传，1-2 分钟生效
+
+### 新增项目素材
+1. 文件放到 `assets/projects/项目编号/` 下（如 `01/`、`04/`）
+2. 封面命名为 `cover.扩展名`（如 `cover.jpg` 或 `cover.mp4`）
+3. 画廊素材命名为 `shot1.jpg`、`shot2.mp4` 等
+4. 打开 `assets/manifest.json`，在对应项目里修改：
+   - `cover`：填封面对应的文件名（没有填 `null`）
+   - `shots`：数组按顺序加上所有画廊素材文件名
+5. 保存上传，1-2 分钟生效
+
+> 文件名必须完全一致（大小写、扩展名）。支持 jpg / png / gif / webp / mp4 / mov / webm
