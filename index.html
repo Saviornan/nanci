@@ -1703,8 +1703,8 @@ function buildWorkCard(item, idx) {
   const isVideo = item.type === 'video';
   const src = `${item.src}?v=${WORKS_ASSET_VERSION}`;
   const media = isVideo
-    ? `<video src="${src}" muted loop autoplay playsinline preload="metadata"></video>`
-    : `<img src="${src}" alt="${item.labelEn} Work ${item.num}" loading="lazy">`;
+    ? `<video src="${src}#t=0.1" muted loop autoplay playsinline preload="auto"></video>`
+    : `<img src="${src}" alt="${item.labelEn} Work ${item.num}" decoding="async">`;
   const play = isVideo ? '<span class="tag">▶</span>' : '';
   return `<div class="masonry-item" data-auto-work="${idx}" data-type="${item.type}">
     ${media}
@@ -2153,9 +2153,10 @@ async function initCarousels() {
       return;
     }
 
-    if (coverLocalVideo && coverLocalVideo.src) {
-      thumb.innerHTML = `<div style="width:100%;height:100%;position:relative;overflow:hidden;background:var(--surface);"><video src="${coverLocalVideo.src}" muted loop autoplay playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"></video></div>`;
+      if (coverLocalVideo && coverLocalVideo.src) {
+      thumb.innerHTML = `<div style="width:100%;height:100%;position:relative;overflow:hidden;background:var(--surface);"><video src="${coverLocalVideo.src}#t=0.1" muted loop autoplay playsinline preload="auto" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"></video></div>`;
       return;
+    }
     }
 
     if (coverImage && coverImage.src) {
