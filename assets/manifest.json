@@ -1,0 +1,14 @@
+{
+  "works": {
+    "2d": ["01.jpg","02.jpg","03.jpg","04.jpg","05.jpg","06.jpg"],
+    "3d": ["01.png","02.png","03.png"],
+    "ai": ["01.mp4","02.mp4","03.mp4","04.mp4"],
+    "motion": ["01.mp4","02.mp4","03.gif","04.gif","05.gif","06.gif"]
+  },
+  "projects": {
+    "01": { "cover": null, "shots": ["shot1.mp4"] },
+    "03": { "cover": "cover.mp4", "shots": [] },
+    "04": { "cover": "cover.mp4", "shots": ["shot1.mp4","shot2.mp4","shot3.mp4","shot4.mp4","shot5.mp4"] },
+    "05": { "cover": "cover.mp4", "shots": ["shot1.png","shot2.png","shot3.jpg","shot4.jpg","shot5.jpg","shot6.png","shot7.png","shot8.png"] }
+  }
+}
