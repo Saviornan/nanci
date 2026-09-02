@@ -1721,10 +1721,14 @@ function buildWorksEmpty() {
 }
 
 let ASSET_MANIFEST = null;
+   // ⚡ 页面加载后立即后台预加载 manifest
+document.addEventListener('DOMContentLoaded', () => {
+  loadManifest();
+});
 async function loadManifest() {
   if (ASSET_MANIFEST) return ASSET_MANIFEST;
   try {
-    const r = await fetch('./assets/manifest.json', { cache: 'no-cache' });
+    const r = await fetch('./assets/manifest.json');
     ASSET_MANIFEST = await r.json();
   } catch(e) {
     console.error('Manifest load failed:', e);
