@@ -937,7 +937,34 @@ body {
   transform: scale(1.04);
   filter: brightness(1.1);
 }
-
+   
+/* ═══ 加载态：300ms后仍未加载完才显示紫色脉冲框 ═══ */
+.masonry-item {
+  border: 2px solid transparent;
+  border-radius: var(--r-md);
+  transition: border-color 0.5s, box-shadow 0.5s;
+}
+.masonry-item:not(.loaded) img,
+.masonry-item:not(.loaded) video {
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+.masonry-item.loaded img,
+.masonry-item.loaded video {
+  opacity: 1;
+}
+.masonry-item.is-loading:not(.loaded):not(.load-error) {
+  background: var(--bg3);
+  border-color: var(--lav);
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
+.masonry-item.loaded { border-color: transparent; }
+.masonry-item.load-error { border-color: rgba(180,160,216,0.15); }
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 6px rgba(180,160,216,0.25); }
+  50%      { box-shadow: 0 0 18px rgba(180,160,216,0.65); }
+}
+   
 .masonry-overlay {
   position: absolute; inset: 0;
   background: linear-gradient(to top, rgba(10,10,10,0.9) 0%, transparent 60%);
@@ -1702,9 +1729,13 @@ function padWorkIndex(n) {
 function buildWorkCard(item, idx) {
   const isVideo = item.type === 'video';
   const src = `${item.src}?v=${WORKS_ASSET_VERSION}`;
+  const onLoad = isVideo
+    ? `onloadeddata="this.closest('.masonry-item').classList.add('loaded')"`
+    : `onload="this.closest('.masonry-item').classList.add('loaded')"`;
+  const onError = `onerror="this.closest('.masonry-item').classList.add('load-error')"`;
   const media = isVideo
-    ? `<video src="${src}#t=0.1" muted loop autoplay playsinline preload="auto"></video>`
-    : `<img src="${src}" alt="${item.labelEn} Work ${item.num}" decoding="async">`;
+    ? `<video src="${src}#t=0.1" muted loop autoplay playsinline preload="auto" ${onLoad} ${onError}></video>`
+    : `<img src="${src}" alt="${item.labelEn} Work ${item.num}" decoding="async" ${onLoad} ${onError}>`;
   const play = isVideo ? '<span class="tag">▶</span>' : '';
   return `<div class="masonry-item" data-auto-work="${idx}" data-type="${item.type}">
     ${media}
@@ -1759,8 +1790,22 @@ async function initWorksWhenReady() {
   const grid = document.getElementById('worksMasonry');
   if (!grid) return;
   try {
-    scannedWorks = await scanWorksAssets();
+        scannedWorks = await scanWorksAssets();
+    scannedWorks.reverse(); // 后加载的置顶
     grid.innerHTML = scannedWorks.length ? scannedWorks.map(buildWorkCard).join('') : buildWorksEmpty();
+    // 延迟加载指示：300ms后还没加载完的才显示发光框
+    grid.querySelectorAll('.masonry-item:not(.loaded)').forEach(item => {
+      const timer = setTimeout(() => {
+        if (!item.classList.contains('loaded') && !item.classList.contains('load-error')) {
+          item.classList.add('is-loading');
+        }
+      }, 300);
+      const img = item.querySelector('img');
+      if (img && img.complete && img.naturalWidth > 0) {
+        clearTimeout(timer);
+        item.classList.add('loaded');
+      }
+    });
     grid.querySelectorAll('.masonry-item[data-auto-work]').forEach(item => {
       item.addEventListener('click', () => openWorkViewer(+item.dataset.autoWork));
     });
